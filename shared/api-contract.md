@@ -18,6 +18,7 @@
 }
 ```
 - 空值：无法计算（除零、缺数据）一律返回 `null`，前端显示「—」，禁止返回 0 冒充。
+- 预算基准：`budget_fact` 缺少任一标准科目时视为「预算未导入/不完整」，`profit_bridge`、`kpis.profit.base`、`kpis.gross_margin.base` 返回 `null`，不按 0 计算。
 - 对比基准 `baseline`：`yoy`（同期，默认）/ `budget`（预算）/ `mom`（上期）。
 
 ## 1. 认证
@@ -69,10 +70,28 @@
     "start": 64.60, "end": 112.70,
     "items": [
       { "key": "revenue_scale", "name": "收入规模", "impact": 100.48, "kind": "positive", "note": "收入增长 240.00 万 × 基期边际贡献率 41.87%" },
-      { "key": "food_cost_rate", "name": "食材成本率", "impact": -10.42, "kind": "negative", "note": "26.70% ← 25.66%" }
+      { "key": "food_cost", "name": "食材成本", "impact": -10.42, "kind": "negative", "note": "费率 26.70% ← 25.66%" },
+      { "key": "discount_fee", "name": "优惠及手续费", "impact": 12.93, "kind": "positive", "note": "费率 23.50% ← 24.79%" },
+      { "key": "utilities", "name": "水电气低值", "impact": 2.17, "kind": "positive", "note": "费率 3.99% ← 4.21%" },
+      { "key": "marketing", "name": "宣传费用", "impact": 7.39, "kind": "positive", "note": "费率 2.74% ← 3.47%" },
+      { "key": "salary", "name": "工资奖金", "impact": -12.03, "kind": "negative", "note": "固定费用绝对额 135.00 → 147.03 万" },
+      { "key": "dorm_rent", "name": "宿舍房租", "impact": -1.66, "kind": "negative", "note": "固定费用绝对额 15.50 → 17.16 万" },
+      { "key": "store_rent", "name": "店铺房租", "impact": -13.76, "kind": "negative", "note": "固定费用绝对额 56.10 → 69.86 万" },
+      { "key": "other", "name": "其它费用", "impact": -37.00, "kind": "negative", "note": "固定费用绝对额 47.00 → 84.00 万" }
     ]
   },
-  "percentiles": { "gross_margin": { "p25": 0.71, "p50": 0.73, "p75": 0.75, "current": 0.733, "bucket": "P50–P75" } },
+  "percentiles": {
+    "revenue": { "p25": 42.08, "p50": 62.39, "p75": 82.19, "current": null, "bucket": null, "n": 13 },
+    "profit": null,
+    "gross_margin": null,
+    "same_store_growth": { "p25": 0.079, "p50": 0.102, "p75": 0.191, "current": 0.128, "bucket": "P50–P75", "n": 13 },
+    "percentile_hints": {
+      "revenue": "门店收入分位（13 家同店）",
+      "profit": "门店级营业利润明细未导入，暂不展示分位",
+      "gross_margin": "示例数据只有品牌级利润表，门店毛利率分位暂缺",
+      "same_store_growth": "同店收入增速分位（13 家同店）"
+    }
+  },
   "summary": "收入增长 240.00 万元，按基期边际贡献率 41.87% 贡献利润 100.48 万元；……"
 } }
 ```

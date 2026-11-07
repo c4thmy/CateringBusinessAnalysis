@@ -5,6 +5,10 @@
 .dsh/
 .claude/
 .DS_Store
+.env
+.env.local
+*.env
+!*.env.example
 
 # 研究临时脚本（保留 raw 提取 JSON 与报告）
 docs/research/tmp_*.js

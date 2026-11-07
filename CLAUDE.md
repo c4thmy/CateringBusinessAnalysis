@@ -47,7 +47,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # 后端（venv 已在 backend/.venv，Python 3.12）
 cd backend && .venv/bin/python -m uvicorn app.main:app --port 8000   # http://127.0.0.1:8000/docs
-cd backend && .venv/bin/python -m pytest                              # 53 passed
+cd backend && .venv/bin/python -m pytest                              # 57 passed
 cd backend && .venv/bin/python -m app.seeds.load_seed                 # 空库首次加载示例数据
 cd backend && rm -f data/cba.db && .venv/bin/python -m app.seeds.load_seed   # 重新灌数
 
@@ -55,7 +55,7 @@ cd backend && rm -f data/cba.db && .venv/bin/python -m app.seeds.load_seed   # �
 cd frontend && npm install
 cd frontend && npm run dev -- --port 5173                             # mock 模式
 cd frontend && VITE_API_MODE=real npm run dev -- --port 5173          # 真后端联调/演示
-cd frontend && npm test && npm run build                              # 45 passed / 构建通过
+cd frontend && npm test && VITE_API_MODE=real npm run build          # 45 passed / 构建（real 模式供 FastAPI 托管）
 
 # 一键
 bash scripts/dev.sh      # 后端 8000 + 前端 5173（前端默认 mock；真后端请用上面的 VITE_API_MODE=real）

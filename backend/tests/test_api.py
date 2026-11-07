@@ -446,3 +446,49 @@ def test_force_reload_is_idempotent(auth: TestClient) -> None:
     assert after["base"] == 760.0
     status = get_data(auth, "/api/data-status?period=2025-09")["data"]
     assert {d["key"]: d for d in status["datasets"]}["pl_monthly"]["rows"] == 10  # 2025-09 品牌口径 10 个科目，未累加
+
+
+# ---------------------------------------------------------------------------
+# 评审补充：预算基准缺失、坏文件、时段主因、分位结构
+# ---------------------------------------------------------------------------
+def test_budget_baseline_incomplete_is_null_not_zero(auth: TestClient) -> None:
+    data = get_data(auth, "/api/analysis/overview?baseline=budget")["data"]
+    assert data["profit_bridge"] is None
+    assert data["kpis"]["profit"]["base"] is None
+    assert data["kpis"]["profit"]["diff"] is None
+    assert data["kpis"]["gross_margin"]["base"] is None
+    assert "预算未导入" in data["summary"]
+    profit = get_data(auth, "/api/analysis/profit?baseline=budget")["data"]
+    assert profit["profit_bridge"] is None
+    assert profit["profit"]["base"] is None
+    assert profit["rows"][1]["base"] is None
+
+
+def test_invalid_xlsx_returns_row_error_not_500(auth: TestClient) -> None:
+    response = auth.post(
+        "/api/imports",
+        data={"dataset": "pl_monthly"},
+        files={"file": ("bad.xlsx", b"this is not a zip", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["errors"], body
+    assert "不是有效的 xlsx" in body["errors"][0]["message"]
+
+
+def test_store_daypart_highlight_and_rates(auth: TestClient) -> None:
+    data = get_data(auth, "/api/analysis/revenue/store/12")["data"]
+    assert data["daypart_highlight"] is not None
+    highlighted = [row for row in data["dayparts"] if row.get("highlight")]
+    assert len(highlighted) == 1
+    insight = get_data(auth, "/api/analysis/revenue/store/12")["insights"][0]["text"]
+    assert "同比分别 — / —" not in insight
+
+
+def test_overview_percentile_keys_for_frontend(auth: TestClient) -> None:
+    percentiles = get_data(auth, "/api/analysis/overview")["data"]["percentiles"]
+    assert percentiles["revenue"] is not None
+    assert percentiles["same_store_growth"] is not None
+    assert percentiles["gross_margin"] is None
+    assert "percentile_hints" in percentiles
+    assert percentiles["revenue"]["n"] == 13

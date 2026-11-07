@@ -107,8 +107,8 @@ def same_store(stores: Sequence[Mapping]) -> dict:
                 "store_id": store.get("store_id"),
                 "store_name": store.get("store_name") or store.get("name"),
                 "region": store.get("region"),
-                "revenue": {"current": revenue_cur, "base": revenue_base, "diff": revenue_cur - revenue_base},
-                "traffic": {"current": t_cur, "base": t_base, "diff": t_cur - t_base},
+                "revenue": {"current": revenue_cur, "base": revenue_base, "diff": revenue_cur - revenue_base, "rate": (revenue_cur - revenue_base) / revenue_base if revenue_base else None},
+                "traffic": {"current": t_cur, "base": t_base, "diff": t_cur - t_base, "rate": (t_cur - t_base) / t_base if t_base else None},
                 "ticket": {"current": ticket_cur, "base": ticket_base, "diff": (ticket_cur - ticket_base) if ticket_cur is not None and ticket_base is not None else None},
                 "traffic_impact": t_impact,
                 "ticket_impact": k_impact,
@@ -477,4 +477,6 @@ def daypart_table(rows: Sequence[Mapping]) -> dict:
     total["rate"] = total["diff"] / total["base"] if total["base"] else None
     # 对门店客流变化贡献最大的时段（按 |diff|）
     biggest = max(detail, key=lambda item: abs(item["diff"]), default=None)
+    for item in detail:
+        item["highlight"] = biggest is not None and item is biggest
     return {"rows": detail, "day_types": subtotals, "total": total, "biggest": biggest}

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useOverview } from '../../api/hooks'
 import { ChartCard } from '../../components/ChartCard'
 import { FactorTable } from '../../components/FactorTable'
+import { EmptyState } from '../../components/EmptyState'
 import { KpiCard } from '../../components/KpiCard'
 import { CaliberNote, Footnote } from '../../components/Notes'
 import { PageError, PageLoading } from '../../components/PageState'
@@ -13,7 +14,6 @@ import { formatPercent, formatPp, formatSignedPercent, formatWan } from '../../u
 type BridgeView = 'chart' | 'table'
 
 /** 同期有数据的同店门店数（示例数据 13 家），用于 KPI 分位口径 */
-const SAME_STORE_COUNT = 13
 
 export function DashboardPage() {
   const { filters } = useFilters()
@@ -75,7 +75,7 @@ export function DashboardPage() {
             diff={kpis.revenue.diff}
             diffFormat="currency"
             percentiles={data.percentiles.revenue}
-            storeCount={data.percentiles.revenue ? SAME_STORE_COUNT : undefined}
+            storeCount={data.percentiles.revenue?.n ?? undefined}
             percentileHint={data.percentile_hints?.revenue}
             footer={<span>同比 {formatSignedPercent(revenueRate)} · 利润表口径</span>}
             insights={insights.slice(0, 1)}
@@ -109,9 +109,9 @@ export function DashboardPage() {
             diff={kpis.gross_margin.diff}
             diffFormat="pp"
             percentiles={data.percentiles.gross_margin}
-            storeCount={data.percentiles.gross_margin ? SAME_STORE_COUNT : undefined}
+            storeCount={data.percentiles.gross_margin?.n ?? undefined}
             percentileHint={data.percentile_hints?.gross_margin}
-            footer={<span>毛利率变动 {formatPp(kpis.gross_margin.diff)}；门店分位 P50–P75</span>}
+            footer={<span>毛利率变动 {formatPp(kpis.gross_margin.diff)}{data.percentiles.gross_margin?.bucket ? `；门店分位 ${data.percentiles.gross_margin.bucket}` : '；门店毛利率分位暂缺'}</span>}
             insights={insights.slice(2, 3)}
           />
         </Col>
@@ -126,13 +126,16 @@ export function DashboardPage() {
             diff={kpis.same_store_growth.diff}
             diffFormat="pp"
             percentiles={data.percentiles.same_store_growth}
-            storeCount={data.percentiles.same_store_growth ? SAME_STORE_COUNT : undefined}
-            percentileHint={data.percentile_hints?.same_store_growth ?? '累计同店口径未提供数据'}
+            storeCount={data.percentiles.same_store_growth?.n ?? undefined}
+            percentileHint={data.percentile_hints?.same_store_growth}
             footer={
               isYtd ? (
                 <span>累计同店口径未提供数据（—）</span>
               ) : (
-                <span>同店收入 857.23 万元 · 新店收入 143.00 万元</span>
+                <span>
+                  同店收入 {formatWan(data.kpis.same_store_growth.same_store_revenue ?? null)} 万元 · 新店收入{' '}
+                  {formatWan(data.kpis.same_store_growth.new_store_revenue ?? null)} 万元
+                </span>
               )
             }
             insights={insights.slice(0, 1)}
@@ -140,6 +143,7 @@ export function DashboardPage() {
         </Col>
       </Row>
 
+      {data.profit_bridge ? (
       <ChartCard
         title="利润桥：营业利润变动拆解"
         subtitle={`${periodLabel} · 单位：万元 · 连环替代顺序固定为「收入规模 → 变动成本率 → 固定费用」`}
@@ -165,6 +169,11 @@ export function DashboardPage() {
           <FactorTable items={data.profit_bridge.items} />
         )}
       </ChartCard>
+      ) : (
+        <Card title="利润桥：营业利润变动拆解" extra={<Tag color="orange">预算未导入</Tag>}>
+          <EmptyState title="暂不展示利润桥" description="预算未导入或科目不完整，无法计算利润桥；请切换为「同期」基准或先导入完整预算。" />
+        </Card>
+      )}
 
       <Card
         title="一句话结论"

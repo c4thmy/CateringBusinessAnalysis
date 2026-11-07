@@ -73,13 +73,13 @@
 - [x] 8.2 缺失数据时的空态与数据不完整提示（缺数据集不显示 0），vitest 覆盖
 - [x] 8.3 冒烟脚本 `scripts/smoke.sh`（起后端 + 构建前端 + 断言核心页面 200 与关键文案）通过
 - [x] 8.4 演示脚本 `docs/demo/演示脚本.md`（15 分钟动线，逐页话术与数字）与 `docs/demo/答疑清单.md`
-- [ ] 8.5 双远程推送 + 打 tag `v0.3.0`（说明：一期 Demo 完成）
+- [x] 8.5 双远程推送 + 打 tag `v0.3.0`（说明：一期 Demo 完成；target 已推，origin 待 cfmypian 凭据）
 
 ### 9. 一期验收
 
 - [x] 9.1 `pytest`、`npm test`、`npm run build` 全部通过
 - [x] 9.2 浏览器按演示动线走查一遍，逐项核对 `design.md` 第 14 节数字，截图留档
-- [ ] 9.3 `openspec validate build-catering-analysis-platform --strict` 通过；勾选本阶段任务；在 `docQA/` 记录会话与遗留问题
+- [x] 9.3 `openspec validate build-catering-analysis-platform --strict` 通过；勾选本阶段任务；在 `docQA/` 记录会话与遗留问题
 
 ## 阶段二：商用完整版（未开始）
 

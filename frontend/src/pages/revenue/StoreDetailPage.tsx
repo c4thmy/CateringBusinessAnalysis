@@ -191,7 +191,7 @@ export function StoreDetailPage() {
             <RankItem label="客流排名" value={ranking.trafficRank} total={ranking.total} />
             <RankItem label="客单排名" value={ranking.ticketRank} total={ranking.total} />
             <div style={{ fontSize: 12, color: '#9CA3AF', alignSelf: 'center' }}>
-              排名按 13 家同店本期值降序；门店12 收入第 {ranking.revenueRank ?? '—'}、客流第{' '}
+              排名按 {ranking.total} 家同店本期值降序；{data.store.name} 收入第 {ranking.revenueRank ?? '—'}、客流第{' '}
               {ranking.trafficRank ?? '—'}、客单第 {ranking.ticketRank ?? '—'}。
             </div>
           </div>

@@ -23,16 +23,18 @@ describe('mock 数据 = design.md 第 14 节验收数字', () => {
     expect(res.data.kpis.gross_margin.base).toBeCloseTo(0.7434, 4)
     expect(res.data.kpis.gross_margin.diff).toBeCloseTo(-0.0104, 4)
     expect(res.data.kpis.same_store_growth.value).toBeCloseTo(0.128008, 5)
-    expect(res.data.profit_bridge.start).toBe(64.6)
-    expect(res.data.profit_bridge.end).toBe(112.7)
+    const bridge = res.data.profit_bridge
+    if (!bridge) throw new Error('mock 利润桥不应为空')
+    expect(bridge.start).toBe(64.6)
+    expect(bridge.end).toBe(112.7)
   })
 
   it('利润桥 9 项因素与合计 +48.10', async () => {
     const res = await mockRequest<ApiEnvelope<OverviewData>>('/analysis/overview?period=2025-09')
-    const impacts = Object.fromEntries(
-      res.data.profit_bridge.items.map((item) => [item.key, item.impact]),
-    )
-    expect(res.data.profit_bridge.items).toHaveLength(9)
+    const bridge = res.data.profit_bridge
+    if (!bridge) throw new Error('mock 利润桥不应为空')
+    const impacts = Object.fromEntries(bridge.items.map((item) => [item.key, item.impact]))
+    expect(bridge.items).toHaveLength(9)
     expect(impacts).toMatchObject({
       revenue_scale: 100.48,
       food_cost_rate: -10.42,
@@ -44,7 +46,7 @@ describe('mock 数据 = design.md 第 14 节验收数字', () => {
       store_rent: -13.76,
       other_expense: -37.0,
     })
-    const sum = res.data.profit_bridge.items.reduce((total, item) => total + item.impact, 0)
+    const sum = bridge.items.reduce((total, item) => total + item.impact, 0)
     expect(sum).toBeCloseTo(48.1, 2)
   })
 

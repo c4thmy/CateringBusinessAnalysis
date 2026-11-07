@@ -165,6 +165,7 @@ export function ProfitPage() {
         />
       </Card>
 
+      {data.profit_bridge ? (
       <ChartCard
         title="利润桥：营业利润变动拆解"
         subtitle={`${isYtd ? '2024-01~09 → 2025-01~09' : '2024-09 → 2025-09'} · 单位：万元 · 9 项因素、顺序固定`}
@@ -196,6 +197,11 @@ export function ProfitPage() {
           <FactorTable items={data.profit_bridge.items} />
         )}
       </ChartCard>
+      ) : (
+        <Card title="利润桥：营业利润变动拆解" extra={<Tag color="orange">预算未导入</Tag>}>
+          <div style={{ padding: 16, color: '#6B7280' }}>预算未导入或科目不完整，暂不展示利润桥；请切换为「同期」基准或先导入完整预算。</div>
+        </Card>
+      )}
 
       <Row gutter={[16, 16]}>
         <Col xs={24} md={8}>
@@ -249,8 +255,12 @@ export function ProfitPage() {
         {data.note} 营业利润 = 营业收入 − 8 项成本费用（食材成本、优惠及手续费、水电气低值、宣传费用、工资奖金、宿舍房租、店铺房租、其它费用）；
         毛利率 =（营业收入 − 食材成本）÷ 营业收入。{meta.period} 营业利润 {formatWan(data.profit.current)} 万元，
         利润率 {formatPercent(data.profit.current / (revenueRow?.current ?? 1))}；同期利润率{' '}
-        {formatPercent(data.profit.base / (revenueRow?.base ?? 1))}，占比变动{' '}
-        {formatPp((data.profit.current / (revenueRow?.current ?? 1)) - (data.profit.base / (revenueRow?.base ?? 1)))}。
+        {formatPercent(data.profit.base != null && revenueRow?.base ? data.profit.base / revenueRow.base : null)}，占比变动{' '}
+        {formatPp(
+          data.profit.base != null && revenueRow?.base && revenueRow?.current
+            ? (data.profit.current / revenueRow.current) - (data.profit.base / revenueRow.base)
+            : null,
+        )}。
         四套收入合计口径见各页面脚注，本页使用利润表口径。
       </Footnote>
     </div>

@@ -19,7 +19,7 @@ fi
 BACK_PID=$!
 
 if [[ -d "$ROOT/frontend/node_modules" ]]; then
-  (cd "$ROOT/frontend" && npm run dev -- --port 5173) &
+  (cd "$ROOT/frontend" && VITE_API_MODE="${VITE_API_MODE:-real}" npm run dev -- --port 5173) &
   FRONT_PID=$!
 else
   echo "前端依赖未安装，跳过前端启动（cd frontend && npm install）" >&2

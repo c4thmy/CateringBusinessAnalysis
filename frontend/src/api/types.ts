@@ -49,6 +49,8 @@ export interface KpiValue {
   diff: number | null
   rate?: number | null
   unit: '万元' | '%' | 'pp' | '人次' | '元'
+  same_store_revenue?: number | null
+  new_store_revenue?: number | null
 }
 
 export interface Percentile {
@@ -57,6 +59,7 @@ export interface Percentile {
   p75: number
   current: number | null
   bucket: string | null
+  n?: number
 }
 
 export type Percentiles = Record<string, Percentile>
@@ -82,7 +85,7 @@ export interface OverviewData {
     gross_margin: KpiValue
     same_store_growth: KpiValue
   }
-  profit_bridge: ProfitBridge
+  profit_bridge: ProfitBridge | null
   percentiles: Percentiles
   /** 无法计算分位时的说明（例如门店级数据未导入） */
   percentile_hints?: Record<string, string>
@@ -107,8 +110,8 @@ export interface ProfitRow {
 
 export interface ProfitData {
   rows: ProfitRow[]
-  profit: { current: number; base: number; diff: number }
-  profit_bridge: ProfitBridge
+  profit: { current: number; base: number | null; diff: number | null; rate?: number | null }
+  profit_bridge: ProfitBridge | null
   budget: null
   mode: PeriodMode
   note: string

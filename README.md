@@ -56,8 +56,8 @@ VITE_API_MODE=real npm run dev -- --port 5173                          # 真后�
 # 演示账号 admin / admin123
 
 # 3) 测试与冒烟
-cd backend && .venv/bin/python -m pytest                               # 53 passed
-cd frontend && npm test && npm run build                               # 45 passed / 构建通过
+cd backend && .venv/bin/python -m pytest                               # 57 passed
+cd frontend && npm test && VITE_API_MODE=real npm run build           # 45 passed / 构建（real 模式用于 FastAPI 托管演示）
 bash scripts/smoke.sh                                                  # 一键：pytest + 构建 + 灌数 + 接口数字断言
 
 # 4) 一键起两个服务

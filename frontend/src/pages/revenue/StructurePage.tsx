@@ -162,7 +162,7 @@ export function StructurePage() {
                   `${row.name} ${row.diff > 0 ? '+' : ''}${formatWan(row.diff)} 万元（${formatPercent(row.rate)}）`,
               )
               .join('；')}
-            。{dimension === 'business_model' ? '经营模式为演示占位分摊，接入门店维度后以导入数据为准。' : ''}
+            。{dimension === 'business_model' ? '按门店主数据的经营模式（直营/加盟/联营）聚合，与门店口径合计一致。' : ''}
           </CaliberNote>
         </div>
       </Card>

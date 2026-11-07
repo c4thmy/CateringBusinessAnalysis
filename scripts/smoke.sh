@@ -8,7 +8,7 @@ FRONT="$ROOT/frontend"
 PORT="${SMOKE_PORT:-8010}"
 BASE="http://127.0.0.1:$PORT"
 
-cleanup() { [[ -n "${PID:-}" ]] && kill "$PID" 2>/dev/null || true; }
+cleanup() { [[ -n "${PID:-}" ]] && kill "$PID" 2>/dev/null || true; [[ -n "${SMOKE_DIR:-}" ]] && rm -rf "$SMOKE_DIR"; }
 trap cleanup EXIT INT TERM
 
 echo "== 后端测试 =="
@@ -17,12 +17,14 @@ echo "== 后端测试 =="
 echo "== 前端构建 =="
 (cd "$FRONT" && npm run build)
 
-echo "== 空库加载示例数据 =="
-rm -f "$BACK/data/cba.db"
-(cd "$BACK" && .venv/bin/python -m app.seeds.load_seed)
+echo "== 空库加载示例数据（临时库，不碰演示库 backend/data/cba.db） =="
+SMOKE_DIR="$(mktemp -d)"
+export CBA_DATABASE_URL="sqlite:///$SMOKE_DIR/cba_smoke.db"
+rm -f "$SMOKE_DIR/cba_smoke.db"
+(cd "$BACK" && CBA_DATABASE_URL="$CBA_DATABASE_URL" .venv/bin/python -m app.seeds.load_seed)
 
 echo "== 起后端并断言 =="
-(cd "$BACK" && .venv/bin/python -m uvicorn app.main:app --port "$PORT" >/tmp/cba_smoke.log 2>&1) &
+(cd "$BACK" && CBA_DATABASE_URL="$CBA_DATABASE_URL" .venv/bin/python -m uvicorn app.main:app --port "$PORT" >/tmp/cba_smoke.log 2>&1) &
 PID=$!
 for _ in $(seq 1 30); do curl -sf "$BASE/api/health" >/dev/null && break; sleep 0.5; done
 

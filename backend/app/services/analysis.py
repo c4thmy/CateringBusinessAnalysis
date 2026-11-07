@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import calendar
 from collections import defaultdict
+from collections.abc import Mapping
 from datetime import date
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -416,31 +417,61 @@ def target_for_channel(session: Session, period: str, channel_id: int) -> Target
 # ---------------------------------------------------------------------------
 # 总览
 # ---------------------------------------------------------------------------
+def _budget_complete(base: Mapping[str, float] | None) -> bool:
+    """预算基准是否包含全部标准科目；缺科目时不得用 0 冒充，整段对比置空。"""
+    if not base:
+        return False
+    return all(name in base and base.get(name) is not None for name in settings.standard_accounts)
+
+
 def overview(session: Session, period: str, baseline: str = "yoy", store: str = "all", mode: str = "month", brand: str = "all") -> dict:
     store_id = _store_id(store)
     current_periods = resolve_periods(period, mode)
     baseline_periods = resolve_baseline_periods(baseline, period, mode)
     current = pl_amounts(session, current_periods, store_id)
-    base = (
-        budget_amounts(session, current_periods, store_id)
-        if baseline == "budget"
-        else pl_amounts(session, baseline_periods, store_id)
-    )
     if not current:
         raise AnalysisError(f"{period} 没有利润表数据，请先在数据导入页加载数据")
+    base_available = True
+    if baseline == "budget":
+        base = budget_amounts(session, current_periods, store_id)
+        base_available = _budget_complete(base)
+        if not base_available:
+            base = {}
+    else:
+        base = pl_amounts(session, baseline_periods, store_id)
 
-    revenue_cur, revenue_base = current.get("营业收入", 0.0), base.get("营业收入", 0.0)
-    food_cur, food_base = current.get("食材成本", 0.0), base.get("食材成本", 0.0)
+    revenue_cur = current.get("营业收入", 0.0)
+    food_cur = current.get("食材成本", 0.0)
     profit_cur = revenue_cur - sum(current.get(name, 0.0) for name in settings.standard_accounts if name != "营业收入")
-    profit_base = revenue_base - sum(base.get(name, 0.0) for name in settings.standard_accounts if name != "营业收入")
+    revenue_base = base.get("营业收入") if base_available and base else None
+    if base_available and base:
+        profit_base = revenue_base - sum(base.get(name, 0.0) for name in settings.standard_accounts if name != "营业收入")
+        food_base = base.get("食材成本", 0.0)
+        gm_base = (revenue_base - food_base) / revenue_base if revenue_base else None
+    else:
+        profit_base = None
+        gm_base = None
     gm_cur = (revenue_cur - food_cur) / revenue_cur if revenue_cur else None
-    gm_base = (revenue_base - food_base) / revenue_base if revenue_base else None
 
-    rows = store_rows(session, current_periods[-1], baseline_periods[-1])
+    # 同店增速始终以「去年同期」为基准，不随对比基准（预算/上期）变化
+    store_base_period = resolve_baseline_periods("yoy", period, mode)[-1]
+    rows = store_rows(session, current_periods[-1], store_base_period)
     same = [row for row in rows if row["category"] == "同店"]
     same_cur = sum(row["revenue_current"] for row in same)
     same_base = sum(row["revenue_base"] for row in same)
     same_growth = (same_cur - same_base) / same_base if same_base else None
+    # 累计口径下只有单月门店数据时，同店累计值不可得，置空而不是拿单月冒充累计
+    if mode == "ytd":
+        covered = session.scalar(
+            select(func.count(func.distinct(StoreRevenueFact.period))).where(
+                StoreRevenueFact.period.in_(current_periods),
+                StoreRevenueFact.superseded_by.is_(None),
+            )
+        )
+        if int(covered or 0) < len(current_periods):
+            same_growth = None
+            same_cur = None
+            same_base = None
 
     bridge = None
     if base and baseline != "budget":
@@ -468,8 +499,22 @@ def overview(session: Session, period: str, baseline: str = "yoy", store: str = 
         if row["revenue_base"]
     ]
     growth_pct = percentiles_engine(growth_values)
+    revenue_values = [row["revenue_current"] for row in same if row["revenue_current"]]
+    revenue_pct = percentiles_engine(revenue_values)
     growth_current = same_growth
     percentiles = {
+        "revenue": (
+            {
+                "p25": r4(revenue_pct["p25"]),
+                "p50": r4(revenue_pct["p50"]),
+                "p75": r4(revenue_pct["p75"]),
+                "current": None,
+                "bucket": None,
+                "n": revenue_pct["n"],
+            }
+            if revenue_pct
+            else None
+        ),
         "revenue_growth": (
             {
                 "p25": r4(growth_pct["p25"]),
@@ -482,26 +527,51 @@ def overview(session: Session, period: str, baseline: str = "yoy", store: str = 
             if growth_pct
             else None
         ),
+        "same_store_growth": (
+            {
+                "p25": r4(growth_pct["p25"]),
+                "p50": r4(growth_pct["p50"]),
+                "p75": r4(growth_pct["p75"]),
+                "current": r4(growth_current),
+                "bucket": bucket_of(growth_current, growth_pct),
+                "n": growth_pct["n"],
+            }
+            if growth_pct
+            else None
+        ),
+        "profit": None,
         "gross_margin": None,
-        "note": "示例数据只有品牌级利润表，门店毛利率分位暂缺；收入增速分位基于 13 家同店。",
+        "note": "示例数据只有品牌级利润表，门店毛利率分位暂缺；收入与增速分位基于 13 家同店。",
+        "percentile_hints": {
+            "revenue": f"门店收入分位（{len(revenue_values)} 家同店）",
+            "profit": "门店级营业利润明细未导入，暂不展示分位",
+            "gross_margin": "示例数据只有品牌级利润表，门店毛利率分位暂缺",
+            "same_store_growth": f"同店收入增速分位（{len(growth_values)} 家同店）",
+        },
     }
 
-    summary = (
-        f"收入{'增长' if revenue_cur - revenue_base >= 0 else '下降'} "
-        f"{abs(revenue_cur - revenue_base):.2f} 万元（{_pct((revenue_cur - revenue_base) / revenue_base if revenue_base else None)}）；"
-        f"营业利润 {profit_cur:.2f} 万元，同比 {profit_cur - profit_base:+.2f} 万元；"
-        f"毛利率 {_level_pct(gm_cur)}，同比 {_pp(gm_cur, gm_base)}；同店收入 {_pct(same_growth)}。"
-    )
+    if base_available and revenue_base is not None:
+        summary = (
+            f"收入{'增长' if revenue_cur - revenue_base >= 0 else '下降'} "
+            f"{abs(revenue_cur - revenue_base):.2f} 万元（{_pct((revenue_cur - revenue_base) / revenue_base if revenue_base else None)}）；"
+            f"营业利润 {profit_cur:.2f} 万元，同比 {profit_cur - profit_base:+.2f} 万元；"
+            f"毛利率 {_level_pct(gm_cur)}，同比 {_pp(gm_cur, gm_base)}；同店收入 {_pct(same_growth)}。"
+        )
+    else:
+        summary = (
+            f"收入 {revenue_cur:.2f} 万元；预算未导入或科目不完整，暂不计算预算对比；"
+            f"营业利润 {profit_cur:.2f} 万元；毛利率 {_level_pct(gm_cur)}；同店收入 {_pct(same_growth)}。"
+        )
 
     revenue_cmp = compare(revenue_cur, revenue_base)
     profit_cmp = compare(profit_cur, profit_base)
     data = {
         "kpis": {
-            "revenue": {"value": r2(revenue_cur), "base": r2(revenue_base), "diff": r2(revenue_cmp["diff"]), "rate": r4(revenue_cmp["rate"]), "unit": "万元"},
-            "profit": {"value": r2(profit_cur), "base": r2(profit_base), "diff": r2(profit_cmp["diff"]), "rate": r4(profit_cmp["rate"]), "unit": "万元"},
+            "revenue": {"value": r2(revenue_cur), "base": r2(revenue_base) if revenue_base is not None else None, "diff": r2(revenue_cmp["diff"]) if revenue_cmp["diff"] is not None else None, "rate": r4(revenue_cmp["rate"]) if revenue_cmp["rate"] is not None else None, "unit": "万元"},
+            "profit": {"value": r2(profit_cur), "base": r2(profit_base) if profit_base is not None else None, "diff": r2(profit_cmp["diff"]) if profit_cmp["diff"] is not None else None, "rate": r4(profit_cmp["rate"]) if profit_cmp["rate"] is not None else None, "unit": "万元"},
             "gross_margin": {
                 "value": r4(gm_cur),
-                "base": r4(gm_base),
+                "base": r4(gm_base) if gm_base is not None else None,
                 "diff": r4(gm_cur - gm_base) if gm_cur is not None and gm_base is not None else None,
                 "diff_pp": r2((gm_cur - gm_base) * 100) if gm_cur is not None and gm_base is not None else None,
                 "unit": "pp",
@@ -511,8 +581,9 @@ def overview(session: Session, period: str, baseline: str = "yoy", store: str = 
                 "base": None,
                 "diff": None,
                 "unit": "%",
-                "same_store_revenue": r2(same_cur),
-                "same_store_base": r2(same_base),
+                "same_store_revenue": r2(same_cur) if same_cur is not None else None,
+                "same_store_base": r2(same_base) if same_base is not None else None,
+                "new_store_revenue": r2(sum(row["revenue_current"] for row in rows if row["category"] == "新店")),
             },
         },
         "profit_bridge": bridge,
@@ -537,31 +608,43 @@ def profit(session: Session, period: str, baseline: str = "yoy", store: str = "a
     current = pl_amounts(session, current_periods, store_id)
     if not current:
         raise AnalysisError(f"{period} 没有利润表数据")
-    base = budget_amounts(session, current_periods, store_id) if baseline == "budget" else pl_amounts(session, baseline_periods, store_id)
-    revenue_cur, revenue_base = current.get("营业收入", 0.0), base.get("营业收入", 0.0)
+    budget_amounts_full = None
+    base_available = True
+    if baseline == "budget":
+        budget_amounts_full = budget_amounts(session, current_periods, store_id)
+        base_available = _budget_complete(budget_amounts_full)
+        base = budget_amounts_full if base_available else {}
+    else:
+        base = pl_amounts(session, baseline_periods, store_id)
+    revenue_cur = current.get("营业收入", 0.0)
+    revenue_base = base.get("营业收入") if base else None
 
     rows = []
     for account in accounts:
         cur = current.get(account.name, 0.0)
-        prev = base.get(account.name, 0.0) if base else 0.0
+        prev = base.get(account.name) if base else None
         cur_ratio = cur / revenue_cur if revenue_cur else None
-        base_ratio = prev / revenue_base if revenue_base else None
+        base_ratio = prev / revenue_base if (prev is not None and revenue_base) else None
         rows.append(
             {
                 "account": account.name,
                 "current": r2(cur),
                 "current_ratio": r4(cur_ratio),
-                "base": r2(prev),
+                "base": r2(prev) if prev is not None else None,
                 "base_ratio": r4(base_ratio),
-                "diff": r2(cur - prev),
-                "rate": r4((cur - prev) / prev) if prev else None,
+                "diff": r2(cur - prev) if prev is not None else None,
+                "rate": r4((cur - prev) / prev) if (prev not in (None, 0)) else None,
                 "ratio_pp": r4(cur_ratio - base_ratio) if cur_ratio is not None and base_ratio is not None else None,
                 "cost_behavior": account.cost_behavior,
             }
         )
 
     profit_cur = revenue_cur - sum(current.get(account.name, 0.0) for account in accounts if account.name != "营业收入")
-    profit_base = revenue_base - sum(base.get(account.name, 0.0) for account in accounts if account.name != "营业收入") if base else 0.0
+    profit_base = (
+        revenue_base - sum(base.get(account.name, 0.0) for account in accounts if account.name != "营业收入")
+        if (base and revenue_base is not None)
+        else None
+    )
     bridge = None
     bridge_insights: list[dict] = []
     if base and baseline != "budget":
@@ -578,15 +661,13 @@ def profit(session: Session, period: str, baseline: str = "yoy", store: str = "a
 
     budget = None
     if baseline == "budget":
-        has_expense_budget = any(
-            name in base for name in settings.standard_accounts if name not in ("营业收入", "税金及附加")
-        )
+        has_expense_budget = _budget_complete(budget_amounts_full)
         budget = {
             "revenue": {
                 "actual": r2(revenue_cur),
-                "budget": r2(revenue_base),
-                "achievement": r4(revenue_cur / revenue_base) if revenue_base else None,
-                "reached": bool(revenue_base and revenue_cur >= revenue_base),
+                "budget": r2(budget_amounts_full.get("营业收入")) if budget_amounts_full and budget_amounts_full.get("营业收入") is not None else None,
+                "achievement": r4(revenue_cur / budget_amounts_full["营业收入"]) if budget_amounts_full and budget_amounts_full.get("营业收入") else None,
+                "reached": bool(budget_amounts_full and budget_amounts_full.get("营业收入") and revenue_cur >= budget_amounts_full["营业收入"]),
             },
             "profit": {
                 "actual": r2(profit_cur),
@@ -599,7 +680,7 @@ def profit(session: Session, period: str, baseline: str = "yoy", store: str = "a
 
     data = {
         "rows": rows,
-        "profit": {"current": r2(profit_cur), "base": r2(profit_base), "diff": r2(profit_cur - profit_base), "rate": r4((profit_cur - profit_base) / profit_base) if profit_base else None},
+        "profit": {"current": r2(profit_cur), "base": r2(profit_base) if profit_base is not None else None, "diff": r2(profit_cur - profit_base) if profit_base is not None else None, "rate": r4((profit_cur - profit_base) / profit_base) if profit_base else None},
         "profit_bridge": bridge,
         "budget": budget,
         "mode": mode,
@@ -609,6 +690,23 @@ def profit(session: Session, period: str, baseline: str = "yoy", store: str = "a
         "meta": _meta(period, baseline_label(baseline, baseline_periods), _store_label(store), brand),
         "insights": bridge_insights,
     }
+
+
+def _ensure_store_revenue_period(session: Session, period: str) -> None:
+    """收入分析页要求该期间有门店收入；缺失时 4xx，而不是用 0 计算。"""
+    exists = session.scalar(
+        select(func.count()).select_from(StoreRevenueFact).where(
+            StoreRevenueFact.period == period,
+            StoreRevenueFact.superseded_by.is_(None),
+        )
+    )
+    if not int(exists or 0):
+        raise AnalysisError(f"{period} 没有门店收入数据，请先在数据导入页导入该期间的门店收入")
+
+
+def _reject_budget_baseline(baseline: str) -> None:
+    if baseline == "budget":
+        raise AnalysisError("收入分析一期暂不支持预算基准，请切换为「同期」基准")
 
 
 # ---------------------------------------------------------------------------
@@ -625,6 +723,8 @@ DIMENSIONS = {
 
 
 def revenue_structure(session: Session, period: str, dimension: str, baseline: str = "yoy", store: str = "all", mode: str = "month", brand: str = "all") -> dict:
+    _reject_budget_baseline(baseline)
+    _ensure_store_revenue_period(session, period)
     if dimension not in DIMENSIONS:
         raise AnalysisError(f"不支持的维度：{dimension}（可选 {'、'.join(DIMENSIONS)}）")
     current_periods = resolve_periods(period, mode)
@@ -699,8 +799,11 @@ def revenue_structure(session: Session, period: str, dimension: str, baseline: s
 # 同店异动
 # ---------------------------------------------------------------------------
 def revenue_same_store(session: Session, period: str, baseline: str = "yoy", brand: str = "all") -> dict:
+    _ensure_store_revenue_period(session, period)
     baseline_periods = resolve_baseline_periods(baseline, period, "month")
     rows = store_rows(session, period, baseline_periods[-1])
+    if not any(row["has_current"] for row in rows):
+        raise AnalysisError(f"{period} 没有门店收入数据，请先在数据导入页导入该期间的门店收入")
     same = [row for row in rows if row["category"] == "同店"]
     new = [row for row in rows if row["category"] == "新店"]
     result = same_store(same)
@@ -756,6 +859,7 @@ def revenue_same_store(session: Session, period: str, baseline: str = "yoy", bra
 # 单店
 # ---------------------------------------------------------------------------
 def revenue_store(session: Session, period: str, store_id: int, baseline: str = "yoy", brand: str = "all") -> dict:
+    _ensure_store_revenue_period(session, period)
     store = session.get(Store, store_id)
     if store is None:
         raise AnalysisError(f"门店 {store_id} 不存在")
@@ -818,6 +922,7 @@ def revenue_store(session: Session, period: str, store_id: int, baseline: str = 
             for item in daypart_result["day_types"]
         ],
         "dayparts_total": daypart_result["total"],
+        "daypart_highlight": daypart_result.get("biggest"),
         "dayparts_note": dayparts_note,
     }
     insights = insight_rules.finalize(insight_rules.store_anomaly_insights(single["stores"]), settings.top_n)
@@ -832,6 +937,8 @@ def revenue_store(session: Session, period: str, store_id: int, baseline: str = 
 # 渠道
 # ---------------------------------------------------------------------------
 def revenue_channel(session: Session, period: str, baseline: str = "yoy", brand: str = "all") -> dict:
+    _reject_budget_baseline(baseline)
+    _ensure_store_revenue_period(session, period)
     baseline_periods = resolve_baseline_periods(baseline, period, "month")
     base_period = baseline_periods[-1]
     rows = store_rows(session, period, base_period)
@@ -900,6 +1007,8 @@ def revenue_channel(session: Session, period: str, baseline: str = "yoy", brand:
 
 
 def revenue_channel_detail(session: Session, period: str, channel_id: int, baseline: str = "yoy", brand: str = "all") -> dict:
+    _reject_budget_baseline(baseline)
+    _ensure_store_revenue_period(session, period)
     channel = session.get(Channel, channel_id)
     if channel is None:
         raise AnalysisError(f"渠道 {channel_id} 不存在")
@@ -975,6 +1084,8 @@ def revenue_product(session: Session, period: str, scope: str = "all", baseline:
     baseline_periods = resolve_baseline_periods(baseline, period, "month")
     base_period = baseline_periods[-1]
     current_series, base_series = series_rows(session, period, base_period)
+    if not current_series:
+        raise AnalysisError(f"{period} 没有产品系列数据，请先在数据导入页导入该期间的产品销售")
     sets_current = set_totals(session, period)
     sets_base = set_totals(session, base_period)
 
@@ -1136,6 +1247,7 @@ ACTIONS = [
 
 
 def revenue_conclusion(session: Session, period: str, baseline: str = "yoy", brand: str = "all") -> dict:
+    _ensure_store_revenue_period(session, period)
     baseline_periods = resolve_baseline_periods(baseline, period, "month")
     rows = store_rows(session, period, baseline_periods[-1])
     same = [row for row in rows if row["category"] == "同店"]

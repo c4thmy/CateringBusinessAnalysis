@@ -77,9 +77,16 @@ def error(row: int, column: str, message: str) -> dict:
 def _read_matrix(filename: str, content: bytes) -> list[list]:
     suffix = Path(filename or "").suffix.lower()
     if suffix in (".xlsx", ".xlsm"):
+        import zipfile
+
         from openpyxl import load_workbook
 
-        workbook = load_workbook(io.BytesIO(content), read_only=True, data_only=True)
+        if not content:
+            raise ValueError("文件为空，请上传带表头的 Excel / CSV")
+        try:
+            workbook = load_workbook(io.BytesIO(content), read_only=True, data_only=True)
+        except (zipfile.BadZipFile, OSError, KeyError) as exc:
+            raise ValueError("文件不是有效的 xlsx（可能是改了扩展名的旧格式或已损坏），请另存为 .xlsx 后重试") from exc
         sheet = workbook[workbook.sheetnames[0]]
         matrix: list[list] = []
         for row in sheet.iter_rows(values_only=True):

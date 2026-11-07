@@ -208,7 +208,7 @@ export function SameStorePage() {
       </Card>
 
       <Card
-        title="13 家同店明细"
+        title="{data.stores.length} 家同店明细"
         extra={<span style={{ fontSize: 12, color: '#9CA3AF' }}>点击门店行下钻单店详情</span>}
         styles={{ body: { padding: 0 } }}
       >
