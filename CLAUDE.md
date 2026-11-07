@@ -26,6 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `docs/research/excel-model-extract.md`、`excel-sample-data.json`、`ppt-course-extract.md` — 源文件的完整提取与差异清单
 - `docs/domain/data-caliber-notes.md` — 口径差异与默认取数规则（**做数之前先读**）
 - `docs/architecture.md`、`docs/agents/roles.md`、`docs/sprint-7d.md` — 一人指挥多角色 Agent 的生产方式、角色写入范围、7 天冲刺
+- `docs/engineering/` — 软件工程过程文档集（需求分析 / 产品设计 / 概要设计 / 详细设计 / 测试文档 / 用户手册 / 维护与版本记录），维护与交接先读这里
 
 ## 一期范围（2026-11-15 Demo）
 
