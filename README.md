@@ -113,7 +113,8 @@ git checkout v0.1.0         # 临时切回该状态查看，看完用 git checko
 已有标签：
 - v0.1.0：初始基线，业务参考资料(docs) + OpenSpec 脚手架 + CLAUDE.md，尚无源代码
 - v0.2.0：经营分析系统 OpenSpec 规划完成（change: build-catering-analysis-platform），待审批，尚无源代码
-- v0.3.0：一期 Demo 完成（待打）
+- v0.3.0：一期 Demo 完成（2026-11-08）——收入分析全链路 + 数据导入 + 应用框架 + 6 模块骨架，57 pytest / 45 vitest / 冒烟通过
+- v0.3.1：一期演示收口（2026-11-08）——标签清单与实测命令修正，演示环境验证通过
 
 
 ## openspec opt
