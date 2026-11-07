@@ -40,3 +40,34 @@
 - 新增依赖：前端 antd、echarts、react-router、@tanstack/react-query；后端 fastapi、sqlalchemy、pandas、openpyxl、pytest。版本锁定。
 - `docs/` 下的原始文件只读，作为口径和验收基准，不修改。
 - 不在本次范围：真实的 AI 对话/大模型洞察（界面上的"AI 洞察"入口先做成基于规则的文字结论）、第三方平台 API 自动拉数、多租户权限体系（只做单管理员登录）、移动端适配。
+
+## 交付节奏
+
+全系统分两期交付：
+
+| 期次 | 时间 | 目标 | 范围 | 状态 |
+|---|---|---|---|---|
+| 一期 | 2026-11-15 前 | 培训课演讲 Demo | 登录 + 应用框架 + 全部 6 模块导航与页面骨架 + 数据导入 + **收入分析完整** + 经营总览（含按 Excel 口径算好的利润桥）+ 沙盘/报告入口占位 | 本次实施 |
+| 二期 | 一期验收后 | 商用完整版 | 毛利分析、费用分析、顾客 & 竞争分析、总结 & 计划、沙盘预演与结果方案、报告导出；多租户与权限 | 本次只留骨架与规格 |
+
+一期验收标准：见 `tasks.md`「阶段一」的验收清单与 `docs/sprint-7d.md` 的里程碑。
+
+## 一期关键决策（已与用户确认）
+
+1. **后端 Python**：FastAPI + SQLAlchemy + SQLite（后续可换 PostgreSQL）+ pandas/openpyxl（导入解析）；计算引擎为不依赖框架的纯函数，便于测试与复用。
+2. **前端 React + TypeScript + Vite + Ant Design 5 + ECharts**；界面基准为本 change 的 `design.md` 与 `docs/webUI.md`（用户确认参考路径为 `.../openspec/changes/build-catering-analysis-platform`），并参考 `~/Projects/canyin-ops` 的已验证页面结构，但不复用其 Next.js 代码。
+3. **示例数据以 Excel 为唯一准绳**：`docs/利润桥及毛利率分析-高维第二期261003.xlsx` 的明细与公式是第一优先级；PPT 中的取整/示意数字只用于讲解。两者不一致处逐条记录在 `backend/seed/README.md` 与 `docs/domain/data-caliber-notes.md`。
+4. **飞书 / 微信本期只落设计与演示脚本**，不实际接通；开发与审批走当前 Web 会话。入口方案见 `docs/architecture.md` 第 6 节。
+5. **双远程**：保留 `origin`（cfmypian/CateringBusinessAnalysis-dshSA），新增 `target`（c4thmy/CateringBusinessAnalysis），每次里程碑双推。
+6. **AI 洞察按规则生成**：规则来源为 PPT 知识库页（67–79）与 Excel 阈值，不接大模型。
+7. **同店 / 新店 / 闭店、客流与客单口径**：以 Excel 明细为准；Excel 内两处口径不一致（同店渠道分摊分别用同期占比与本期占比、门店级合计与品牌级合计有 0.1–0.3 万尾差）在示例数据中保留并记录，页面标注口径与尾差说明。
+
+## 一期交付物
+
+- 可运行系统：`backend/` + `frontend/`，一条命令起后端、一条命令起前端；`README.md` 写清启动、导入示例数据、演示路径。
+- 数据导入：8 类 Excel/CSV 模板（月度利润表、门店收入、渠道收入、产品系列、单品、线上漏斗、时段客流、预算与目标），含校验、预览、确认、批次回滚、数据就绪状态。
+- 收入分析：结构（经营模式/同店新店/区域/渠道/渠道大类/系列）、同店客流×客单、门店下钻、时段下钻、同店渠道异动、套餐与系列/单品量价、曝光转化漏斗、平台费用率与 ROI、异动汇总、规则化洞察。
+- 经营总览：KPI 卡片（收入、营业利润、毛利率、同店增速 + 门店分位）、利润桥瀑布图（2024-09→2025-09，9 个因素）、一句话结论。
+- 骨架页：毛利分析、费用分析、顾客 & 竞争分析、总结 & 计划、沙盘预演、报告导出——可见、可导航、标注「二期」与已规划能力。
+- 文档：`docs/architecture.md`（一人指挥多 Agent）、`docs/agents/roles.md`（角色与分派）、`docs/sprint-7d.md`（7 天冲刺）、`docs/domain/data-caliber-notes.md`（口径差异）、`docs/demo/`（演示脚本与截图）。
+- 记录：本 change 的 proposal/specs/design/tasks 持续更新；每次提交中文 `type: 说明`；里程碑打 tag 双推。

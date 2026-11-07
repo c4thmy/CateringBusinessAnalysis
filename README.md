@@ -1,7 +1,75 @@
-# CateringBusinessAnalysis
+# CateringBusinessAnalysis · 餐饮经营分析系统
+
+> 把高维学堂的 Excel 经营分析体系（利润桥、收入结构、收入异动下钻）做成可交互的 Web 系统。
+> 一期目标：2026-11-15 培训课演示「收入分析模块」；二期补齐毛利、费用、顾客 & 竞争、总结 & 计划、沙盘预演与结果方案。
+
+- 远程仓库（双远程）：
+  - `origin`：https://github.com/cfmypian/CateringBusinessAnalysis-dshSA.git（历史与实验记录）
+  - `target`：https://github.com/c4thmy/CateringBusinessAnalysis.git（演示与商用主仓库）
+- 技术栈：后端 Python（FastAPI + SQLAlchemy + SQLite + pandas/openpyxl + pytest）；前端 React 18 + TypeScript + Vite + Ant Design 5 + ECharts；AI 洞察按规则生成，暂不接大模型。
+- 需求与规格唯一真相：`openspec/changes/build-catering-analysis-platform/`（proposal → specs → design → tasks）。
+
+## 当前状态
+
+| 阶段 | 内容 | 状态 |
+|---|---|---|
+| 规划 | OpenSpec change 10 个能力规格 + 设计 + 任务 | 已修订，待用户审批 |
+| 一期 | 登录 + 框架 + 数据导入 + 收入分析完整 + 总览利润桥 + 6 模块骨架 | 待审批后开工 |
+| 二期 | 毛利 / 费用 / 顾客 & 竞争 / 总结 & 计划 / 沙盘 / 报告导出 | 规格已列，未开始 |
+
+## 目录
+
+```
+docs/                  业务与过程文档
+  webUI.md             界面风格参考（Profit Pilot）
+  architecture.md      一人指挥多角色 Agent 的系统设计
+  agents/roles.md      角色定义、写入范围与分派规则
+  sprint-7d.md         7 天冲刺计划
+  domain/              业务口径与数据差异（data-caliber-notes.md）
+  research/            Excel / PPT 完整提取报告与样例数据
+  demo/                演示脚本与截图（一期产出）
+openspec/              规格驱动开发（proposal → specs → design → tasks → archive）
+backend/               一期新增：FastAPI 服务、引擎、导入器、测试、seed
+frontend/              一期新增：React 看板
+shared/fixtures/       前后端共用的验收用例
+scripts/               启动、加载示例数据、冒烟
+```
+
+## 文档索引
+
+- 业务口径与差异：`docs/domain/data-caliber-notes.md`
+- Excel 模型提取：`docs/research/excel-model-extract.md`、`docs/research/excel-sample-data.json`
+- PPT 课件提取：`docs/research/ppt-course-extract.md`
+- 方案与验收：`openspec/changes/build-catering-analysis-platform/{proposal,design,tasks}.md`
+- 开发流程：`docs/architecture.md`、`docs/agents/roles.md`、`docs/sprint-7d.md`
+
+## 快速开始（一期代码落地后补全）
+
+```bash
+# 后端
+cd backend && uvicorn app.main:app --reload   # http://127.0.0.1:8000
+
+# 前端
+cd frontend && npm install && npm run dev      # http://127.0.0.1:5173
+
+# 加载示例数据（Excel 2025-09 / 2024-09）
+python -m app.seeds.load_seed
+
+# 测试
+cd backend && pytest
+cd frontend && npm test && npm run build
+```
 
 ## git opt
-https://github.com/c4thmy/CateringBusinessAnalysis.git
+
+```bash
+git remote -v        # 应有 origin 与 target 两个远程
+git pull --rebase origin main
+git add <本次改动的文件>     # 不要 git add -A，避免卷入其他 Agent 的改动
+git commit -m "docs: 说明"
+git push origin main
+git push target main
+```
 
 //…or create a new repository on the command line
 echo "# CateringBusinessAnalysis" >> README.md
@@ -28,6 +96,7 @@ git status
 //tag：给当前工程状态打标签，方便之后查找
 git tag -a v0.1.0 -m "说明这个版本的状态"   # 在当前提交上打附注标签
 git push origin v0.1.0                        # 推送标签到 GitHub（git push 默认不推标签）
+git push target v0.1.0
 
 git tag -n                  # 列出所有标签及说明
 git show v0.1.0             # 查看标签对应的提交内容
@@ -37,6 +106,7 @@ git checkout v0.1.0         # 临时切回该状态查看，看完用 git checko
 已有标签：
 - v0.1.0：初始基线，业务参考资料(docs) + OpenSpec 脚手架 + CLAUDE.md，尚无源代码
 - v0.2.0：经营分析系统 OpenSpec 规划完成（change: build-catering-analysis-platform），待审批，尚无源代码
+- v0.3.0：一期 Demo 完成（待打）
 
 
 ## openspec opt
@@ -44,6 +114,10 @@ OpenSpec 是 Fission AI 出品的规格驱动开发（SDD）框架，项目地�
 npm install -g @fission-ai/openspec@1.16.0   # 固定版本；想装最新版改成 @latest
 
 openspec --version
+openspec list                  # 进行中的 change
+openspec show build-catering-analysis-platform
+openspec validate build-catering-analysis-platform --strict
+openspec archive build-catering-analysis-platform
 
 npm install -g @fission-ai/openspec@latest
 cd your-project
