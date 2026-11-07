@@ -1,0 +1,43 @@
+{
+  "name": "roi_2509",
+  "source": "第二步-收入异动分析!B117:M121（表8 增收提价的预算 & 目标）；美团大众平台费用率 30% 由渠道收入 460 × 30% = 138",
+  "unit": "元 / 比率",
+  "input": {
+    "meituan_dazhong": {
+      "revenue": 460.0,
+      "platform_fee": 138.0,
+      "gross_margin": 0.6
+    },
+    "dianping_budget": {
+      "revenue": 8.2,
+      "platform_fee": 2.46,
+      "gross_margin": 0.6
+    },
+    "takeaway_budget": {
+      "revenue": 4.0,
+      "platform_fee": 2.0,
+      "gross_margin": 0.6
+    },
+    "thresholds": {
+      "fee_rate": 0.15,
+      "gross_roi": 1.0,
+      "sales_roi": 4.0
+    }
+  },
+  "expected": {
+    "meituan_dazhong": {
+      "fee_rate": 0.3,
+      "gross_roi": 2.0,
+      "sales_roi": 3.33
+    },
+    "dianping_budget": {
+      "gross_roi": 2.0,
+      "sales_roi": 3.33
+    },
+    "takeaway_budget": {
+      "gross_roi": 1.2,
+      "sales_roi": 2.0
+    },
+    "tolerance": 0.01
+  }
+}

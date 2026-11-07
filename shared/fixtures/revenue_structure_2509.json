@@ -1,0 +1,156 @@
+{
+  "name": "revenue_structure_2509",
+  "source": "第二步-餐饮收入结构分析!B2:H14（渠道）、B16:H35（区域/门店）、E33:H35（同店新店）",
+  "unit": "万元",
+  "input": {
+    "channel": [
+      {
+        "key": "meituan_dazhong",
+        "name": "美团大众",
+        "current": 460,
+        "base": 336
+      },
+      {
+        "key": "scan_pay",
+        "name": "扫码支付",
+        "current": 316,
+        "base": 252
+      },
+      {
+        "key": "online_promo",
+        "name": "线上活动优惠",
+        "current": 101,
+        "base": 82
+      },
+      {
+        "key": "meituan_takeaway",
+        "name": "美团外卖",
+        "current": 60,
+        "base": 46
+      },
+      {
+        "key": "eleme_takeaway",
+        "name": "饿了外卖",
+        "current": 32,
+        "base": 27.55
+      },
+      {
+        "key": "douyin",
+        "name": "抖音",
+        "current": 16,
+        "base": 3
+      },
+      {
+        "key": "member_stored",
+        "name": "会员储值消费",
+        "current": 7,
+        "base": 5
+      },
+      {
+        "key": "dine_in_cash",
+        "name": "堂食现金",
+        "current": 3.58,
+        "base": 3.5
+      },
+      {
+        "key": "cmb",
+        "name": "招商银行",
+        "current": 3,
+        "base": 3.5
+      },
+      {
+        "key": "jd_takeaway",
+        "name": "京东外卖",
+        "current": 1.42,
+        "base": 1.01
+      }
+    ],
+    "same_new": [
+      {
+        "key": "same_store",
+        "name": "同店",
+        "current": 857.23,
+        "base": 759.95
+      },
+      {
+        "key": "new_store",
+        "name": "新店",
+        "current": 143.0,
+        "base": 0
+      }
+    ],
+    "region": [
+      {
+        "key": "region_1",
+        "name": "区域一",
+        "current": 369.76,
+        "base": 321.0
+      },
+      {
+        "key": "region_2",
+        "name": "区域二",
+        "current": 312.29,
+        "base": 268.59
+      },
+      {
+        "key": "region_3",
+        "name": "区域三",
+        "current": 318.18,
+        "base": 170.36
+      }
+    ]
+  },
+  "expected": {
+    "channel": {
+      "total": {
+        "current": 1000.0,
+        "base": 759.56,
+        "diff": 240.44,
+        "rate": 0.3166
+      },
+      "meituan_dazhong": {
+        "current": 460.0,
+        "base": 336.0,
+        "diff": 124.0,
+        "rate": 0.369,
+        "current_share": 0.46
+      }
+    },
+    "same_new": {
+      "total": {
+        "current": 1000.23,
+        "base": 759.95,
+        "diff": 240.28,
+        "rate": 0.3162
+      },
+      "same_store": {
+        "current": 857.23,
+        "base": 759.95,
+        "diff": 97.28,
+        "rate": 0.128
+      },
+      "new_store": {
+        "current": 143.0,
+        "base": 0,
+        "diff": 143.0,
+        "rate": null
+      }
+    },
+    "region": {
+      "total": {
+        "current": 1000.23,
+        "base": 759.95
+      },
+      "region_1": {
+        "current": 369.76
+      },
+      "region_2": {
+        "current": 312.29
+      },
+      "region_3": {
+        "current": 318.18
+      }
+    },
+    "tolerance": 0.02
+  }
+}

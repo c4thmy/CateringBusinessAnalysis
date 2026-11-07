@@ -1,0 +1,53 @@
+{
+  "description": "前后端共用回归用例；expected 与 design.md 第 14 节验收数字一致，容差见各文件 tolerance。",
+  "cases": [
+    {
+      "name": "profit_bridge_2509",
+      "file": "profit_bridge_2509.json",
+      "engine": "profit_bridge",
+      "desc": "2024-09 → 2025-09 营业利润桥 9 因素"
+    },
+    {
+      "name": "revenue_structure_2509",
+      "file": "revenue_structure_2509.json",
+      "engine": "structure",
+      "desc": "收入结构：渠道 / 同店新店 / 区域"
+    },
+    {
+      "name": "same_store_2509",
+      "file": "same_store_2509.json",
+      "engine": "same_store",
+      "desc": "同店客流×客单拆解与 13 店影响额"
+    },
+    {
+      "name": "channel_split_2509",
+      "file": "channel_split_2509.json",
+      "engine": "channel_split",
+      "desc": "渠道同店/新店分摊（本期占比）"
+    },
+    {
+      "name": "product_volume_price_2509",
+      "file": "product_volume_price_2509.json",
+      "engine": "product_volume_price",
+      "desc": "系列/套餐量价拆解"
+    },
+    {
+      "name": "funnel_2509",
+      "file": "funnel_2509.json",
+      "engine": "funnel",
+      "desc": "曝光→访问→支付→消费漏斗"
+    },
+    {
+      "name": "roi_2509",
+      "file": "roi_2509.json",
+      "engine": "roi",
+      "desc": "平台费用率与毛利/销售 ROI"
+    },
+    {
+      "name": "compare_chain_2509",
+      "file": "compare_chain_2509.json",
+      "engine": "compare/chain_substitution",
+      "desc": "差异率与连环替代闭合"
+    }
+  ]
+}

@@ -20,9 +20,9 @@
 
 ## Decisions
 
-### 1. 前后端分离：React + Ant Design 5 + ECharts / FastAPI
-- 前端：React 18 + TypeScript + Vite + Ant Design 5 + ECharts（echarts-for-react）+ react-router + @tanstack/react-query。Ant Design 的布局、表格和表单最接近 Profit Pilot 风格，ECharts 原生支持瀑布图（堆叠柱）、双轴、漏斗和词云（echarts-wordcloud）。
-- 后端：Python 3.12 + FastAPI + SQLAlchemy 2 + pandas + openpyxl。选 Python 的原因是 Excel 解析、校验和导出用 pandas / openpyxl 最省事，因素分析写成纯函数也方便测试。
+### 1. 前后端分离：React + Ant Design 6 + ECharts / FastAPI
+- 前端：React 19 + TypeScript 7 + Vite 8 + Ant Design 6 + ECharts 6（echarts-for-react）+ react-router 7 + @tanstack/react-query 5。Ant Design 的布局、表格和表单最接近 Profit Pilot 风格，ECharts 原生支持瀑布图（堆叠柱）、双轴、漏斗和词云（echarts-wordcloud）。
+- 后端：Python 3.12 + FastAPI 0.162 + SQLAlchemy 2.1 + Alembic 1.20 + pandas 3.1 + openpyxl 3.1。选 Python 的原因是 Excel 解析、校验和导出用 pandas / openpyxl 最省事，因素分析写成纯函数也方便测试。
 - 备选方案：纯前端加 IndexedDB。这样就没有后端，但数据只存在浏览器里，导入批次、回滚和多人共享都不好做，所以不选。备选方案：Node/NestJS。生态也可以，但 Excel 处理和数值计算不如 pandas 顺手。
 
 ### 2. 目录结构
@@ -242,7 +242,7 @@ engine 纯函数（`backend/app/engine/`）：
 | 同店渠道·美团大众 | 394.23 | 336.00 | +58.24（+17.3%）；新店分摊 65.77 |
 | 系列量价（同店） | 销量影响 +91.50、单价影响 +5.67 | — | 合计 97.17 |
 | 套餐量价 | 5,472 单 / 444,217.54 元 / 81.18 元 | 432 / 66,080 / 152.96 | 量差 +770,933.33、价差 -392,795.79、合计 +378,137.54 |
-| 漏斗 | 曝光 4,567,196 → 访问 673,686（14.75%）→ 支付 73,113（10.85%）→ 消费 64,468（88.18%） | — | 曝光-支付 1.6% |
+| 漏斗 | 曝光 4,367,174 → 访问 639,025（14.63%）→ 支付 73,113（11.44%）→ 消费 64,468（88.18%） | — | 曝光-支付 1.67% |
 | 平台 ROI | 大众点评：费用率 30%、产投比 3.33、毛利 ROI 2.00 | 目标 ROI 2 | 达标；外卖毛利 ROI 1.20，目标 1，达标 |
 
 利润桥 9 项：收入规模 +100.48、食材成本率 -10.42、优惠及手续费 +12.93、水电气低值 +2.17、宣传费用 +7.39、工资奖金 -12.03、宿舍房租 -1.66、店铺房租 -13.76、其它费用 -37.00，合计 +48.10。

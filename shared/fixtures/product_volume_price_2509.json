@@ -1,0 +1,156 @@
+{
+  "name": "product_volume_price_2509",
+  "source": "第二步-收入异动分析!B26:T37（品类销量/单价/收入）、B40:G50（全店量价）、I40:N50（同店量价）、B53:M57（套餐量价）",
+  "unit": "销量份 / 销售额元 / 影响万元",
+  "input": {
+    "same_store_ratio": 0.857033,
+    "series_current": [
+      {
+        "key": "肉类",
+        "name": "肉类",
+        "qty": 152127,
+        "amount": 5460700.0
+      },
+      {
+        "key": "锅底类",
+        "name": "锅底类",
+        "qty": 23426,
+        "amount": 620900.0
+      },
+      {
+        "key": "涮品类",
+        "name": "涮品类",
+        "qty": 107684,
+        "amount": 2108600.0
+      },
+      {
+        "key": "主食类",
+        "name": "主食类",
+        "qty": 37724,
+        "amount": 458100.0
+      },
+      {
+        "key": "凉菜类",
+        "name": "凉菜类",
+        "qty": 5607,
+        "amount": 81700.0
+      },
+      {
+        "key": "小料类",
+        "name": "小料类",
+        "qty": 81296,
+        "amount": 771600.0
+      },
+      {
+        "key": "饮品",
+        "name": "饮品",
+        "qty": 30406,
+        "amount": 490000.0
+      },
+      {
+        "key": "其它",
+        "name": "其它",
+        "qty": 78077,
+        "amount": 10000.0
+      }
+    ],
+    "series_base": [
+      {
+        "key": "肉类",
+        "name": "肉类",
+        "qty": 113280,
+        "amount": 3880000.0
+      },
+      {
+        "key": "锅底类",
+        "name": "锅底类",
+        "qty": 24010,
+        "amount": 530000.0
+      },
+      {
+        "key": "涮品类",
+        "name": "涮品类",
+        "qty": 80860,
+        "amount": 1410000.0
+      },
+      {
+        "key": "主食类",
+        "name": "主食类",
+        "qty": 27658,
+        "amount": 760000.0
+      },
+      {
+        "key": "凉菜类",
+        "name": "凉菜类",
+        "qty": 17511,
+        "amount": 150000.0
+      },
+      {
+        "key": "小料类",
+        "name": "小料类",
+        "qty": 43251,
+        "amount": 380000.0
+      },
+      {
+        "key": "饮品",
+        "name": "饮品",
+        "qty": 28668,
+        "amount": 430000.0
+      },
+      {
+        "key": "其它",
+        "name": "其它",
+        "qty": 62412,
+        "amount": 60000.0
+      }
+    ],
+    "sets_current": {
+      "qty": 5472,
+      "amount": 444217.54,
+      "dish_revenue": 214128.87,
+      "discount": 230088.67
+    },
+    "sets_base": {
+      "qty": 432,
+      "amount": 66080.0,
+      "dish_revenue": 33197.11,
+      "discount": 32882.89
+    }
+  },
+  "expected": {
+    "same_store": {
+      "total": {
+        "current": 857.17,
+        "base": 760.0,
+        "diff": 97.17
+      },
+      "qty_impact": 91.5,
+      "price_impact": 5.67
+    },
+    "all_store": {
+      "total": {
+        "current": 1000.16,
+        "base": 760.0,
+        "diff": 240.16
+      },
+      "qty_impact": 233.54,
+      "price_impact": 6.62
+    },
+    "sets": {
+      "current": {
+        "qty": 5472,
+        "amount": 444217.54,
+        "avg_price": 81.18
+      },
+      "base": {
+        "qty": 432,
+        "amount": 66080.0,
+        "avg_price": 152.96
+      },
+      "qty_impact": 770933.33,
+      "price_impact": -392795.79,
+      "diff": 378137.54
+    },
+    "tolerance": 0.05
+  }
+}

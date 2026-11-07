@@ -36,7 +36,7 @@
 
 ## Impact
 
-- 新增前端工程（React + TypeScript + Vite + Ant Design 5 + ECharts）和后端工程（Python FastAPI + SQLAlchemy + SQLite，后续可换 PostgreSQL）。目录与命令在 design.md 中确定，落地后补写到 `CLAUDE.md`。
+- 新增前端工程（React 19 + TypeScript 7 + Vite 8 + Ant Design 6 + ECharts 6）和后端工程（Python 3.12 + FastAPI + SQLAlchemy 2.1 + SQLite，后续可换 PostgreSQL）。目录与命令在 design.md 中确定，落地后补写到 `CLAUDE.md`。
 - 新增依赖：前端 antd、echarts、react-router、@tanstack/react-query；后端 fastapi、sqlalchemy、pandas、openpyxl、pytest。版本锁定。
 - `docs/` 下的原始文件只读，作为口径和验收基准，不修改。
 - 不在本次范围：真实的 AI 对话/大模型洞察（界面上的"AI 洞察"入口先做成基于规则的文字结论）、第三方平台 API 自动拉数、多租户权限体系（只做单管理员登录）、移动端适配。
@@ -55,7 +55,7 @@
 ## 一期关键决策（已与用户确认）
 
 1. **后端 Python**：FastAPI + SQLAlchemy + SQLite（后续可换 PostgreSQL）+ pandas/openpyxl（导入解析）；计算引擎为不依赖框架的纯函数，便于测试与复用。
-2. **前端 React + TypeScript + Vite + Ant Design 5 + ECharts**；界面基准为本 change 的 `design.md` 与 `docs/webUI.md`（用户确认参考路径为 `.../openspec/changes/build-catering-analysis-platform`），并参考 `~/Projects/canyin-ops` 的已验证页面结构，但不复用其 Next.js 代码。
+2. **前端 React 19 + TypeScript 7 + Vite 8 + Ant Design 6 + ECharts 6**；界面基准为本 change 的 `design.md` 与 `docs/webUI.md`（用户确认参考路径为 `.../openspec/changes/build-catering-analysis-platform`），并参考 `~/Projects/canyin-ops` 的已验证页面结构，但不复用其 Next.js 代码。
 3. **示例数据以 Excel 为唯一准绳**：`docs/利润桥及毛利率分析-高维第二期261003.xlsx` 的明细与公式是第一优先级；PPT 中的取整/示意数字只用于讲解。两者不一致处逐条记录在 `backend/seed/README.md` 与 `docs/domain/data-caliber-notes.md`。
 4. **飞书 / 微信本期只落设计与演示脚本**，不实际接通；开发与审批走当前 Web 会话。入口方案见 `docs/architecture.md` 第 6 节。
 5. **双远程**：保留 `origin`（cfmypian/CateringBusinessAnalysis-dshSA），新增 `target`（c4thmy/CateringBusinessAnalysis），每次里程碑双推。

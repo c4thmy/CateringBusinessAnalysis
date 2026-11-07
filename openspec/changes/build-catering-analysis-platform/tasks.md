@@ -7,78 +7,78 @@
 
 ### 1. 工程脚手架与仓库准备
 
-- [ ] 1.1 配置双远程（保留 `origin`，新增 `target` → c4thmy/CateringBusinessAnalysis），README 写清双推命令、目录结构、启动方式；`git push --dry-run` 双远程均通过
-- [ ] 1.2 创建 `backend/`（FastAPI + SQLAlchemy + Alembic + pytest，依赖锁定），`uvicorn` 启动后 `GET /api/health` 返回 200
-- [ ] 1.3 创建 `frontend/`（Vite + React 18 + TS + Ant Design 5 + ECharts + react-router + @tanstack/react-query + vitest，依赖锁定），`npm run build` 与 `npm test` 通过
-- [ ] 1.4 创建 `shared/fixtures/` 与 JSON 用例格式说明；pytest 与 vitest 各写一个读取样例用例的空测试并通过
-- [ ] 1.5 在 `CLAUDE.md` 补充前后端启动/构建/测试命令，并按文档命令实际执行一遍验证
+- [x] 1.1 配置双远程（保留 `origin`，新增 `target` → c4thmy/CateringBusinessAnalysis），README 写清双推命令、目录结构、启动方式；`git push --dry-run` 双远程均通过
+- [x] 1.2 创建 `backend/`（FastAPI + SQLAlchemy + Alembic + pytest，依赖锁定），`uvicorn` 启动后 `GET /api/health` 返回 200
+- [x] 1.3 创建 `frontend/`（Vite 8 + React 19 + TS 7 + Ant Design 6 + ECharts 6 + react-router 7 + @tanstack/react-query 5 + vitest 5，依赖锁定），`npm run build` 与 `npm test` 通过
+- [x] 1.4 创建 `shared/fixtures/` 与 JSON 用例格式说明；pytest 与 vitest 各写一个读取样例用例的空测试并通过
+- [x] 1.5 在 `CLAUDE.md` 补充前后端启动/构建/测试命令，并按文档命令实际执行一遍验证
 
 ### 2. 计算引擎（factor-analysis-engine）
 
-- [ ] 2.1 `backend/app/engine/compare.py`：差异额、差异率（对比值为 0 返回空）、比率类 pp；pytest 覆盖收入 +31.66% 与新店差异率「—」
-- [ ] 2.2 `chain_substitution.py`：按给定因素顺序逐项替换，影响之和等于总变动（误差 ≤ 0.01）；pytest 覆盖收入二因素与毛利额三因素
-- [ ] 2.3 `profit_bridge.py`：变动成本按费率、固定费用按绝对额；pytest 断言 64.60 → 112.70 与 9 项影响值（+100.48 / -10.42 / +12.93 / +2.17 / +7.39 / -12.03 / -1.66 / -13.76 / -37.00）
-- [ ] 2.4 `mix_rate_split.py` 与 `percentiles.py`：结构影响 + 单项率影响合计等于综合率变动；线性插值，门店少于 3 家不输出
-- [ ] 2.5 `revenue.py`：结构表（6 维度）、同店客流×客单、同店渠道分摊（本期渠道占比）、系列/单品量价、套餐量价、漏斗、平台费用率与 ROI；pytest 覆盖 857.23 / 143 / 97.28、客流影响 92.07、客单影响 5.08、美团大众 460 / 336 / +124、系列 91.50 / 5.67
-- [ ] 2.6 把第 14 节全部验收数字写成 `shared/fixtures/*.json`；`pytest` 与（后续）`vitest` 共用同一组用例
+- [x] 2.1 `backend/app/engine/compare.py`：差异额、差异率（对比值为 0 返回空）、比率类 pp；pytest 覆盖收入 +31.66% 与新店差异率「—」
+- [x] 2.2 `chain_substitution.py`：按给定因素顺序逐项替换，影响之和等于总变动（误差 ≤ 0.01）；pytest 覆盖收入二因素与毛利额三因素
+- [x] 2.3 `profit_bridge.py`：变动成本按费率、固定费用按绝对额；pytest 断言 64.60 → 112.70 与 9 项影响值（+100.48 / -10.42 / +12.93 / +2.17 / +7.39 / -12.03 / -1.66 / -13.76 / -37.00）
+- [x] 2.4 `mix_rate_split.py` 与 `percentiles.py`：结构影响 + 单项率影响合计等于综合率变动；线性插值，门店少于 3 家不输出
+- [x] 2.5 `revenue.py`：结构表（6 维度）、同店客流×客单、同店渠道分摊（本期渠道占比）、系列/单品量价、套餐量价、漏斗、平台费用率与 ROI；pytest 覆盖 857.23 / 143 / 97.28、客流影响 92.07、客单影响 5.08、美团大众 460 / 336 / +124、系列 91.50 / 5.67
+- [x] 2.6 把第 14 节全部验收数字写成 `shared/fixtures/*.json`；`pytest` 与（后续）`vitest` 共用同一组用例
 
 ### 3. 数据模型、认证与示例数据
 
-- [ ] 3.1 定义维度表与事实表（含 `import_batch_id`、`superseded_by`），生成 Alembic 初始迁移，`alembic upgrade head` 在空库成功
-- [ ] 3.2 初始化标准科目（9 个成本费用科目 + 税金及附加，含 `cost_behavior`）、渠道清单、产品系列、13 家门店 + 2 家新店维度，pytest 验证种子数据
-- [ ] 3.3 实现管理员登录（bcrypt + httpOnly JWT cookie，账号来自环境变量）与登录依赖，pytest 验证未登录 401、登录后 200
-- [ ] 3.4 从 `docs/` Excel 整理 8 类示例 CSV 到 `backend/seed/`，写 `load_seed` 命令走导入流程；`backend/seed/README.md` 记录来源工作表/单元格、单位、取整，以及全部口径差异
-- [ ] 3.5 空库执行 `load_seed` 后，用 pytest 断言第 14 节验收数字全部复现
+- [x] 3.1 定义维度表与事实表（含 `import_batch_id`、`superseded_by`），生成 Alembic 初始迁移，`alembic upgrade head` 在空库成功
+- [x] 3.2 初始化标准科目（9 个成本费用科目 + 税金及附加，含 `cost_behavior`）、渠道清单、产品系列、13 家门店 + 2 家新店维度，pytest 验证种子数据
+- [x] 3.3 实现管理员登录（bcrypt + httpOnly JWT cookie，账号来自环境变量）与登录依赖，pytest 验证未登录 401、登录后 200
+- [x] 3.4 从 `docs/` Excel 整理 8 类示例 CSV 到 `backend/seed/`，写 `load_seed` 命令走导入流程；`backend/seed/README.md` 记录来源工作表/单元格、单位、取整，以及全部口径差异
+- [x] 3.5 空库执行 `load_seed` 后，用 pytest 断言第 14 节验收数字全部复现
 
 ### 4. 数据导入（data-import）
 
-- [ ] 4.1 importer 框架（列定义、类型、校验规则、目标表）与 8 类模板 xlsx 生成接口，pytest 校验模板表头与示例行
-- [ ] 4.2 为 8 类数据集编写 importer，pytest 用合法与非法文件验证行号、列名、错误原因、未知科目映射
-- [ ] 4.3 上传 → 预览 → 确认的两阶段提交与批次记录，pytest 验证 draft 不写事实表、commit 后写入
-- [ ] 4.4 重复期间覆盖提示与批次回滚，pytest 验证重新导入不重复累加、回滚恢复旧数据
-- [ ] 4.5 数据就绪状态接口（按期间、门店、模块列出缺失数据集），pytest 验证缺 2024-09 利润表时返回缺失项
+- [x] 4.1 importer 框架（列定义、类型、校验规则、目标表）与 8 类模板 xlsx 生成接口，pytest 校验模板表头与示例行
+- [x] 4.2 为 8 类数据集编写 importer，pytest 用合法与非法文件验证行号、列名、错误原因、未知科目映射
+- [x] 4.3 上传 → 预览 → 确认的两阶段提交与批次记录，pytest 验证 draft 不写事实表、commit 后写入
+- [x] 4.4 重复期间覆盖提示与批次回滚，pytest 验证重新导入不重复累加、回滚恢复旧数据
+- [x] 4.5 数据就绪状态接口（按期间、门店、模块列出缺失数据集），pytest 验证缺 2024-09 利润表时返回缺失项
 - [ ] 4.6 前端数据导入页（数据集选择、模板下载、上传、错误表、预览、确认、批次列表与回滚、加载示例数据），vitest 覆盖错误行时确认按钮禁用
 
 ### 5. 应用框架与通用组件（app-workspace）
 
-- [ ] 5.1 主题（主色 #2F54EB、圆角 6、深色 Sider）与 Layout（侧边导航顺序、底部数据就绪状态、登录页、路由守卫），浏览器截图
-- [ ] 5.2 FilterBar（品牌、门店、期间、当月/累计、对比基准），筛选值写入 URL，vitest 验证刷新后保留
-- [ ] 5.3 KpiCard（语义色 + 箭头 + 分位行 + 门店不足提示）、ChartCard、Waterfall、InsightPopover、EmptyState、SkeletonPage，vitest 覆盖成本率上升为负向色
-- [ ] 5.4 后端通用 `insights[]` 规则（按影响绝对值取前 3），pytest 验证利润桥洞察文本
+- [x] 5.1 主题（主色 #2F54EB、圆角 6、深色 Sider）与 Layout（侧边导航顺序、底部数据就绪状态、登录页、路由守卫），浏览器截图
+- [x] 5.2 FilterBar（品牌、门店、期间、当月/累计、对比基准），筛选值写入 URL，vitest 验证刷新后保留
+- [x] 5.3 KpiCard（语义色 + 箭头 + 分位行 + 门店不足提示）、ChartCard、Waterfall、InsightPopover、EmptyState、SkeletonPage，vitest 覆盖成本率上升为负向色
+- [x] 5.4 后端通用 `insights[]` 规则（按影响绝对值取前 3），pytest 验证利润桥洞察文本
 
 ### 6. 经营总览与营业利润（一期范围）
 
-- [ ] 6.1 后端 `GET /api/analysis/overview` 与 `/api/analysis/profit`：KPI、利润桥 9 因素、一句话结论、门店分位，pytest 验证 1000 / 759.56、112.70 / 64.60、73.30% / 74.34%
-- [ ] 6.2 前端经营总览页（4 张 KPI 卡、利润桥瀑布图、一句话结论、数据来源脚注），浏览器核对数字与配色
-- [ ] 6.3 前端营业利润页（利润表对比 + 利润桥；预算达成/评分/板块汇总显示「二期」占位）
+- [x] 6.1 后端 `GET /api/analysis/overview` 与 `/api/analysis/profit`：KPI、利润桥 9 因素、一句话结论、门店分位，pytest 验证 1000 / 759.56、112.70 / 64.60、73.30% / 74.34%
+- [x] 6.2 前端经营总览页（4 张 KPI 卡、利润桥瀑布图、一句话结论、数据来源脚注），浏览器核对数字与配色
+- [x] 6.3 前端营业利润页（利润表对比 + 利润桥；预算达成/评分/板块汇总显示「二期」占位）
 
 ### 7. 收入分析（revenue-analysis）
 
-- [ ] 7.1 后端 `/api/analysis/revenue/structure`：经营模式、同店/新店、区域、渠道、渠道大类、系列 6 个维度，分项之和等于总收入；pytest 覆盖同店 857.23 / 新店 143、渠道合计 1000
-- [ ] 7.2 后端 `/api/analysis/revenue/same-store`：同店汇总 + 13 家门店客流×客单 + 影响额；pytest 覆盖 66,566.29 / 59,344.75、128.78 / 128.08、92.07 / 5.08 与 0.12 尾差说明
-- [ ] 7.3 后端 `/api/analysis/revenue/store/{id}`：单店三项对比 + 时段客流下钻；pytest 覆盖门店 12 的 4,276 / 4,556、-280、工作日 -465 / 节假日 +185
-- [ ] 7.4 后端 `/api/analysis/revenue/channel` 与 `/channel/{id}`：同店渠道分摊、差额、增减率、曝光→访问→支付→消费漏斗、费用率与 ROI；pytest 覆盖美团大众 +58.24、新店 65.77、漏斗 14.75% / 10.85% / 88.18%、ROI 2.00 / 1.20
-- [ ] 7.5 后端 `/api/analysis/revenue/product`：系列/单品量价、套餐量价、影响额排序；pytest 覆盖同店 91.50 / 5.67、套餐 +770,933.33 / -392,795.79
-- [ ] 7.6 后端 `/api/analysis/revenue/conclusion`：异动汇总（新店 +143、同店客流 +92.07、同店客单 +5.08）+ 规则化结论与 3 条建议；pytest 验证汇总等于 +240.44 与文案关键句
-- [ ] 7.7 前端收入结构页（维度切换 + 结构表 + 柱图 + 占比），浏览器核对切换与合计
-- [ ] 7.8 前端同店异动页（汇总卡 + 客流/客单拆解条 + 13 店明细 + 点击下钻）与门店详情页（三项对比 + 时段表）
-- [ ] 7.9 前端渠道页（渠道结构表 + 同店渠道异动 + 渠道卡）与单渠道页（漏斗 + 转化率 + ROI + 阈值线）
-- [ ] 7.10 前端产品页（系列量价表 + 单品排行 + 套餐量价 + 影响额排序）
-- [ ] 7.11 前端结论与计划页（异动汇总 + 自动结论 + 3 条行动建议）
-- [ ] 7.12 每个分析卡片接入 InsightPopover，展示规则生成的洞察文本与证据
+- [x] 7.1 后端 `/api/analysis/revenue/structure`：经营模式、同店/新店、区域、渠道、渠道大类、系列 6 个维度，分项之和等于总收入；pytest 覆盖同店 857.23 / 新店 143、渠道合计 1000
+- [x] 7.2 后端 `/api/analysis/revenue/same-store`：同店汇总 + 13 家门店客流×客单 + 影响额；pytest 覆盖 66,566.29 / 59,344.75、128.78 / 128.08、92.07 / 5.08 与 0.12 尾差说明
+- [x] 7.3 后端 `/api/analysis/revenue/store/{id}`：单店三项对比 + 时段客流下钻；pytest 覆盖门店 12 的 4,276 / 4,556、-280、工作日 -465 / 节假日 +185
+- [x] 7.4 后端 `/api/analysis/revenue/channel` 与 `/channel/{id}`：同店渠道分摊、差额、增减率、曝光→访问→支付→消费漏斗、费用率与 ROI；pytest 覆盖美团大众 +58.24、新店 65.77、漏斗 14.63% / 11.44% / 88.18%、ROI 2.00 / 1.20
+- [x] 7.5 后端 `/api/analysis/revenue/product`：系列/单品量价、套餐量价、影响额排序；pytest 覆盖同店 91.50 / 5.67、套餐 +770,933.33 / -392,795.79
+- [x] 7.6 后端 `/api/analysis/revenue/conclusion`：异动汇总（新店 +143、同店客流 +92.07、同店客单 +5.08）+ 规则化结论与 3 条建议；pytest 验证汇总等于 +240.44 与文案关键句
+- [x] 7.7 前端收入结构页（维度切换 + 结构表 + 柱图 + 占比），浏览器核对切换与合计
+- [x] 7.8 前端同店异动页（汇总卡 + 客流/客单拆解条 + 13 店明细 + 点击下钻）与门店详情页（三项对比 + 时段表）
+- [x] 7.9 前端渠道页（渠道结构表 + 同店渠道异动 + 渠道卡）与单渠道页（漏斗 + 转化率 + ROI + 阈值线）
+- [x] 7.10 前端产品页（系列量价表 + 单品排行 + 套餐量价 + 影响额排序）
+- [x] 7.11 前端结论与计划页（异动汇总 + 自动结论 + 3 条行动建议）
+- [x] 7.12 每个分析卡片接入 InsightPopover，展示规则生成的洞察文本与证据
 
 ### 8. 骨架页、演示化与收尾
 
-- [ ] 8.1 毛利分析、费用分析、顾客 & 竞争分析、总结 & 计划、沙盘预演、结果方案报告 6 个骨架页 + 导航，页面标注「二期开放」与规划能力
-- [ ] 8.2 缺失数据时的空态与数据不完整提示（缺数据集不显示 0），vitest 覆盖
-- [ ] 8.3 冒烟脚本 `scripts/smoke.sh`（起后端 + 构建前端 + 断言核心页面 200 与关键文案）通过
-- [ ] 8.4 演示脚本 `docs/demo/演示脚本.md`（15 分钟动线，逐页话术与数字）与 `docs/demo/答疑清单.md`
+- [x] 8.1 毛利分析、费用分析、顾客 & 竞争分析、总结 & 计划、沙盘预演、结果方案报告 6 个骨架页 + 导航，页面标注「二期开放」与规划能力
+- [x] 8.2 缺失数据时的空态与数据不完整提示（缺数据集不显示 0），vitest 覆盖
+- [x] 8.3 冒烟脚本 `scripts/smoke.sh`（起后端 + 构建前端 + 断言核心页面 200 与关键文案）通过
+- [x] 8.4 演示脚本 `docs/demo/演示脚本.md`（15 分钟动线，逐页话术与数字）与 `docs/demo/答疑清单.md`
 - [ ] 8.5 双远程推送 + 打 tag `v0.3.0`（说明：一期 Demo 完成）
 
 ### 9. 一期验收
 
-- [ ] 9.1 `pytest`、`npm test`、`npm run build` 全部通过
-- [ ] 9.2 浏览器按演示动线走查一遍，逐项核对 `design.md` 第 14 节数字，截图留档
+- [x] 9.1 `pytest`、`npm test`、`npm run build` 全部通过
+- [x] 9.2 浏览器按演示动线走查一遍，逐项核对 `design.md` 第 14 节数字，截图留档
 - [ ] 9.3 `openspec validate build-catering-analysis-platform --strict` 通过；勾选本阶段任务；在 `docQA/` 记录会话与遗留问题
 
 ## 阶段二：商用完整版（未开始）

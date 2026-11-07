@@ -1,0 +1,194 @@
+{
+  "name": "same_store_2509",
+  "source": "第二步-收入异动分析!B80:N99（客流、客单、收入）；门店收入取 第二步-餐饮收入结构分析!E18:F30",
+  "unit": "收入万元 / 客流人次 / 客单元",
+  "input": {
+    "stores": [
+      {
+        "store_id": 1,
+        "store_name": "门店1",
+        "region": "区域一",
+        "revenue_current": 69.1,
+        "revenue_base": 58.0,
+        "traffic_current": 5617.88617886177,
+        "traffic_base": 4750,
+        "ticket_current": 123,
+        "ticket_base": 122
+      },
+      {
+        "store_id": 2,
+        "store_name": "门店2",
+        "region": "区域一",
+        "revenue_current": 48.21,
+        "revenue_base": 37.0,
+        "traffic_current": 3514.10452656897,
+        "traffic_base": 2700,
+        "ticket_current": 137.19,
+        "ticket_base": 136
+      },
+      {
+        "store_id": 3,
+        "store_name": "门店3",
+        "region": "区域一",
+        "revenue_current": 91.45,
+        "revenue_base": 83.0,
+        "traffic_current": 6996.40425369138,
+        "traffic_base": 6420,
+        "ticket_current": 130.71,
+        "ticket_base": 130
+      },
+      {
+        "store_id": 4,
+        "store_name": "门店4",
+        "region": "区域一",
+        "revenue_current": 72.0,
+        "revenue_base": 61.0,
+        "traffic_current": 5371.93165709168,
+        "traffic_base": 4610,
+        "ticket_current": 134.03,
+        "ticket_base": 133
+      },
+      {
+        "store_id": 5,
+        "store_name": "门店5",
+        "region": "区域一",
+        "revenue_current": 89.0,
+        "revenue_base": 82.0,
+        "traffic_current": 7377.32095490714,
+        "traffic_base": 6850,
+        "ticket_current": 120.64,
+        "ticket_base": 120
+      },
+      {
+        "store_id": 6,
+        "store_name": "门店6",
+        "region": "区域二",
+        "revenue_current": 53.74,
+        "revenue_base": 44.0,
+        "traffic_current": 3898.44033369603,
+        "traffic_base": 3198.5401459854,
+        "ticket_current": 137.85,
+        "ticket_base": 137
+      },
+      {
+        "store_id": 7,
+        "store_name": "门店7",
+        "region": "区域二",
+        "revenue_current": 82.19,
+        "revenue_base": 62.0,
+        "traffic_current": 6738.54226449125,
+        "traffic_base": 5076.22950819672,
+        "ticket_current": 121.97,
+        "ticket_base": 122
+      },
+      {
+        "store_id": 8,
+        "store_name": "门店8",
+        "region": "区域二",
+        "revenue_current": 62.39,
+        "revenue_base": 54.03,
+        "traffic_current": 4710.45677614194,
+        "traffic_base": 4124.42748091601,
+        "ticket_current": 132.45,
+        "ticket_base": 131
+      },
+      {
+        "store_id": 9,
+        "store_name": "门店9",
+        "region": "区域二",
+        "revenue_current": 54.5,
+        "revenue_base": 54.26,
+        "traffic_current": 3953.57272397534,
+        "traffic_base": 3960.58394160584,
+        "ticket_current": 137.85,
+        "ticket_base": 137
+      },
+      {
+        "store_id": 10,
+        "store_name": "门店10",
+        "region": "区域二",
+        "revenue_current": 59.47,
+        "revenue_base": 54.3,
+        "traffic_current": 5039.83050847456,
+        "traffic_base": 4601.69491525424,
+        "ticket_current": 118.0,
+        "ticket_base": 118
+      },
+      {
+        "store_id": 11,
+        "store_name": "门店11",
+        "region": "区域三",
+        "revenue_current": 42.08,
+        "revenue_base": 39.0,
+        "traffic_current": 3307.65602892627,
+        "traffic_base": 3073.80952380952,
+        "ticket_current": 127.22,
+        "ticket_base": 126
+      },
+      {
+        "store_id": 12,
+        "store_name": "门店12",
+        "region": "区域三",
+        "revenue_current": 56.1,
+        "revenue_base": 59.23,
+        "traffic_current": 4276.24056711638,
+        "traffic_base": 4556.15384615385,
+        "ticket_current": 131.19,
+        "ticket_base": 130
+      },
+      {
+        "store_id": 13,
+        "store_name": "门店13",
+        "region": "区域三",
+        "revenue_current": 77.0,
+        "revenue_base": 72.13,
+        "traffic_current": 5763.90448386855,
+        "traffic_base": 5423.30827067667,
+        "ticket_current": 133.59,
+        "ticket_base": 133
+      }
+    ]
+  },
+  "expected": {
+    "summary": {
+      "current": 857.23,
+      "base": 759.95,
+      "diff": 97.28,
+      "rate": 0.128,
+      "traffic": {
+        "current": 66566.29,
+        "base": 59344.75,
+        "diff": 7221.54,
+        "rate": 0.1217
+      },
+      "ticket": {
+        "current": 128.78,
+        "base": 128.08,
+        "diff": 0.7,
+        "rate": 0.0055
+      },
+      "traffic_impact": 92.07,
+      "ticket_impact": 5.08,
+      "impact_sum": 97.16,
+      "variance_note": "两项影响合计 97.16 万，与同店收入变动 97.28 万相差 0.12 万，为源表取整尾差"
+    },
+    "store_12": {
+      "traffic": {
+        "current": 4276.24,
+        "base": 4556.15
+      },
+      "ticket": {
+        "current": 131.19,
+        "base": 130.0
+      },
+      "revenue": {
+        "current": 56.1,
+        "base": 59.23
+      },
+      "traffic_impact": -3.64,
+      "ticket_impact": 0.51,
+      "diff": -3.13
+    },
+    "tolerance": 0.02
+  }
+}

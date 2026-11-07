@@ -8,10 +8,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目现状
 
-仓库仍以业务资料与 OpenSpec 为主，一期代码（`backend/` + `frontend/`）待用户审批后开工。技术栈已定：
+一期代码已落地并通过自测（`backend/` + `frontend/`），目标 2026-11-15 演示。技术栈：
 
 - 后端：Python 3.12 + FastAPI + SQLAlchemy 2 + Alembic + SQLite + pandas/openpyxl + pytest
-- 前端：React 18 + TypeScript + Vite + Ant Design 5 + ECharts + react-router + @tanstack/react-query + vitest
+- 前端：React 19 + TypeScript 7 + Vite 8 + Ant Design 6 + ECharts 6 + react-router 7 + @tanstack/react-query 5 + vitest 5（版本见 `frontend/package.json` 与 lock 文件）
 - 计算引擎：`backend/app/engine/` 纯函数，与页面解耦，用 `shared/fixtures/*.json` 做前后端回归
 - AI 洞察：按规则生成，暂不接大模型
 
@@ -42,18 +42,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 收入拆解维度：经营模式（直营/加盟/联营）、同店/新店/闭店、区域、渠道（堂食、外卖、美团大众、扫码等）、菜品系列/单品；同店收入异动再拆为客流 × 客单。
 - 毛利率变动拆为 产品销售结构影响 + 单品毛利率影响，并对比实际成本与理论成本。
 
-## 构建与测试（一期代码落地后按实际命令补全）
-
-一期计划命令，D1 脚手架完成后必须逐条实测并替换为真实可执行命令：
+## 构建与测试（已实测）
 
 ```bash
-cd backend && uvicorn app.main:app --reload   # 后端 http://127.0.0.1:8000
-cd backend && pytest                          # 后端测试
-cd frontend && npm install && npm run dev      # 前端 http://127.0.0.1:5173
-cd frontend && npm test && npm run build       # 前端测试与构建
-python -m app.seeds.load_seed                  # 加载示例数据（在 backend 内执行）
-bash scripts/smoke.sh                          # 冒烟
+# 后端（venv 已在 backend/.venv，Python 3.12）
+cd backend && .venv/bin/python -m uvicorn app.main:app --port 8000   # http://127.0.0.1:8000/docs
+cd backend && .venv/bin/python -m pytest                              # 53 passed
+cd backend && .venv/bin/python -m app.seeds.load_seed                 # 空库首次加载示例数据
+cd backend && rm -f data/cba.db && .venv/bin/python -m app.seeds.load_seed   # 重新灌数
+
+# 前端（Vite 8；dev 已把 /api 代理到 8000）
+cd frontend && npm install
+cd frontend && npm run dev -- --port 5173                             # mock 模式
+cd frontend && VITE_API_MODE=real npm run dev -- --port 5173          # 真后端联调/演示
+cd frontend && npm test && npm run build                              # 45 passed / 构建通过
+
+# 一键
+bash scripts/dev.sh      # 后端 8000 + 前端 5173（前端默认 mock；真后端请用上面的 VITE_API_MODE=real）
+bash scripts/smoke.sh    # pytest + 前端构建 + 空库灌数 + 登录 + 关键接口数字断言
 ```
+
+演示账号：`admin / admin123`（环境变量 `CBA_ADMIN_USERNAME` / `CBA_ADMIN_PASSWORD` 可覆盖）。
+前端数据模式：`VITE_API_MODE=mock|real`；真实演示用 `real`。
 
 ## 开发约定
 

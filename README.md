@@ -6,15 +6,15 @@
 - 远程仓库（双远程）：
   - `origin`：https://github.com/cfmypian/CateringBusinessAnalysis-dshSA.git（历史与实验记录）
   - `target`：https://github.com/c4thmy/CateringBusinessAnalysis.git（演示与商用主仓库）
-- 技术栈：后端 Python（FastAPI + SQLAlchemy + SQLite + pandas/openpyxl + pytest）；前端 React 18 + TypeScript + Vite + Ant Design 5 + ECharts；AI 洞察按规则生成，暂不接大模型。
+- 技术栈：后端 Python（FastAPI + SQLAlchemy + SQLite + pandas/openpyxl + pytest）；前端 React 19 + TypeScript 7 + Vite 8 + Ant Design 6 + ECharts 6；AI 洞察按规则生成，暂不接大模型。
 - 需求与规格唯一真相：`openspec/changes/build-catering-analysis-platform/`（proposal → specs → design → tasks）。
 
 ## 当前状态
 
 | 阶段 | 内容 | 状态 |
 |---|---|---|
-| 规划 | OpenSpec change 10 个能力规格 + 设计 + 任务 | 已修订，待用户审批 |
-| 一期 | 登录 + 框架 + 数据导入 + 收入分析完整 + 总览利润桥 + 6 模块骨架 | 待审批后开工 |
+| 规划 | OpenSpec change 10 个能力规格 + 设计 + 任务 | 已批准并实现 |
+| 一期 | 登录 + 框架 + 数据导入 + 收入分析完整 + 总览利润桥 + 6 模块骨架 | 已完成，待演示 |
 | 二期 | 毛利 / 费用 / 顾客 & 竞争 / 总结 & 计划 / 沙盘 / 报告导出 | 规格已列，未开始 |
 
 ## 目录
@@ -43,22 +43,29 @@ scripts/               启动、加载示例数据、冒烟
 - 方案与验收：`openspec/changes/build-catering-analysis-platform/{proposal,design,tasks}.md`
 - 开发流程：`docs/architecture.md`、`docs/agents/roles.md`、`docs/sprint-7d.md`
 
-## 快速开始（一期代码落地后补全）
+## 快速开始（已实测）
 
 ```bash
-# 后端
-cd backend && uvicorn app.main:app --reload   # http://127.0.0.1:8000
+# 1) 后端：Python 3.12 venv（仓库已带 backend/.venv；换机时用 uv venv --python 3.12 重建）
+cd backend && .venv/bin/python -m uvicorn app.main:app --port 8000     # http://127.0.0.1:8000/docs
+.venv/bin/python -m app.seeds.load_seed                                # 空库首次：加载 Excel 示例数据
 
-# 前端
-cd frontend && npm install && npm run dev      # http://127.0.0.1:5173
+# 2) 前端（Vite 8；dev 已把 /api 代理到 8000）
+cd frontend && npm install
+VITE_API_MODE=real npm run dev -- --port 5173                          # 真后端演示；默认 mock 可离线看
+# 演示账号 admin / admin123
 
-# 加载示例数据（Excel 2025-09 / 2024-09）
-python -m app.seeds.load_seed
+# 3) 测试与冒烟
+cd backend && .venv/bin/python -m pytest                               # 53 passed
+cd frontend && npm test && npm run build                               # 45 passed / 构建通过
+bash scripts/smoke.sh                                                  # 一键：pytest + 构建 + 灌数 + 接口数字断言
 
-# 测试
-cd backend && pytest
-cd frontend && npm test && npm run build
+# 4) 一键起两个服务
+bash scripts/dev.sh
 ```
+
+> 演示用 `VITE_API_MODE=real`；mock 模式内置同一套数字，断网也能讲。
+> 重新灌数：`cd backend && rm -f data/cba.db && .venv/bin/python -m app.seeds.load_seed`。
 
 ## git opt
 

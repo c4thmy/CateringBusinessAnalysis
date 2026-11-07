@@ -1,0 +1,43 @@
+{
+  "name": "compare_chain_2509",
+  "source": "2025年月利润表数据!L2/Z2（收入）；第四步重点产品成本损益率分析!B40:G50（毛利额三因素）",
+  "unit": "万元",
+  "input": {
+    "revenue": {
+      "current": 1000,
+      "base": 760
+    },
+    "new_store_revenue": {
+      "current": 143.0,
+      "base": 0
+    },
+    "gross_profit_factors": {
+      "base": {
+        "qty": 397650,
+        "price": 19.112,
+        "cost": 0.0
+      },
+      "current": {
+        "qty": 516347,
+        "price": 19.367,
+        "cost": 0.0
+      }
+    },
+    "note": "毛利额三因素用 品类销量合计 × 加权单价（成本置 0）演示替换顺序与闭合，单位统一为万元"
+  },
+  "expected": {
+    "revenue": {
+      "diff": 240.0,
+      "rate": 0.3158
+    },
+    "new_store_revenue": {
+      "diff": 143.0,
+      "rate": null
+    },
+    "gross_profit": {
+      "total_change": 240.0,
+      "closed": true
+    },
+    "tolerance": 0.05
+  }
+}

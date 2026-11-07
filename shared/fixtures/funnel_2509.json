@@ -1,0 +1,22 @@
+{
+  "name": "funnel_2509",
+  "source": "Excel「标杆品牌点评曝光转化数据」B38:O64 合计行（25 店合计，用户确认 Excel 优先）；PPT p28 的 4,567,196 / 673,686 是另一快照，见 backend/seed/README.md",
+  "unit": "人次 / 比率",
+  "input": {
+    "exposure": 4367174,
+    "visits": 639025,
+    "payers": 73113,
+    "consumers": 64468,
+    "brand_customers": 69298,
+    "new_customers": 59703,
+    "old_customers": 9595
+  },
+  "expected": {
+    "exposure_visit": 0.1463,
+    "visit_pay": 0.1144,
+    "pay_consume": 0.8818,
+    "exposure_pay": 0.0167,
+    "new_customer_share": 0.86,
+    "tolerance": 0.0005
+  }
+}
