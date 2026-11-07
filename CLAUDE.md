@@ -33,3 +33,5 @@ openspec validate <名称>
 ```
 
 日常使用 `/opsx:propose`、`/opsx:apply`、`/opsx:archive` 等斜杠命令驱动流程。
+
+所有SDD类开发，在代码实现前都需要暂停等我审批文档，不可以未经审核就开始编码实现
