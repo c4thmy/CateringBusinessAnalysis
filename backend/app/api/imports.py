@@ -26,8 +26,8 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 
 @router.get("/imports/templates")
-def templates() -> list[dict]:
-    return template_list()
+def templates() -> dict:
+    return {"data": template_list()}
 
 
 @router.get("/imports/templates/{key}.xlsx")
@@ -69,7 +69,7 @@ async def upload_import(
         batch = stage_import(db, dataset, file.filename or f"{dataset}.csv", content, operator, mapping)
     except KeyError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return batch_to_dict(batch)
+    return {"data": batch_to_dict(batch)}
 
 
 @router.post("/imports/{batch_id}/commit")
@@ -78,7 +78,7 @@ def commit(batch_id: int, db: Session = Depends(get_db)) -> dict:
         batch = commit_import(db, batch_id)
     except ImportError_ as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return batch_to_dict(batch)
+    return {"data": batch_to_dict(batch)}
 
 
 @router.post("/imports/{batch_id}/rollback")
@@ -87,7 +87,7 @@ def rollback(batch_id: int, db: Session = Depends(get_db)) -> dict:
         batch = rollback_import(db, batch_id)
     except ImportError_ as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return batch_to_dict(batch)
+    return {"data": batch_to_dict(batch)}
 
 
 @router.get("/imports")

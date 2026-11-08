@@ -75,6 +75,7 @@ export interface BridgeItem {
 export interface ProfitBridge {
   start: number
   end: number
+  base_marginal_contribution_rate?: number | null
   items: BridgeItem[]
 }
 
@@ -205,6 +206,7 @@ export interface StoreDetailData {
     diff: number
   }
   dayparts: DaypartRow[]
+  daypart_highlight?: { day_type: string; daypart: string; diff: number } | null
   note: string
 }
 
@@ -230,7 +232,7 @@ export interface ChannelCategory {
 }
 
 export interface ChannelData {
-  total: { current: number; base: number; diff: number }
+  total: { current: number; base: number; diff: number; same_store?: number; new_store?: number }
   rows: ChannelRow[]
   categories: ChannelCategory[]
   caliber_note: string
@@ -325,7 +327,7 @@ export interface ProductData {
     price_impact: number
   }
   series: SeriesRow[]
-  sets: SetMealData
+  sets: SetMealData | null
   conclusion: string
   note: string
 }

@@ -479,6 +479,15 @@ def overview(session: Session, period: str, baseline: str = "yoy", store: str = 
         bridge = {
             "start": r2(bridge_result["start"]),
             "end": r2(bridge_result["end"]),
+            "base_marginal_contribution_rate": (
+                r4(
+                    1
+                    - sum(base.get(name, 0.0) for name in ("食材成本", "优惠及手续费", "水电气低值", "宣传费用"))
+                    / base.get("营业收入", 0.0)
+                )
+                if base.get("营业收入")
+                else None
+            ),
             "items": [
                 {
                     "key": item["key"],
@@ -652,6 +661,15 @@ def profit(session: Session, period: str, baseline: str = "yoy", store: str = "a
         bridge = {
             "start": r2(result["start"]),
             "end": r2(result["end"]),
+            "base_marginal_contribution_rate": (
+                r4(
+                    1
+                    - sum(base.get(name, 0.0) for name in ("食材成本", "优惠及手续费", "水电气低值", "宣传费用"))
+                    / base.get("营业收入", 0.0)
+                )
+                if base.get("营业收入")
+                else None
+            ),
             "items": [
                 {"key": item["key"], "name": item["name"], "impact": r2(item["impact"]), "kind": item["kind"], "note": item["note"]}
                 for item in result["items"]
@@ -785,7 +803,11 @@ def revenue_structure(session: Session, period: str, dimension: str, baseline: s
     insights = insight_rules.finalize(
         insight_rules.structure_insights(result, DIMENSIONS[dimension]), settings.top_n
     )
-    data = {**result, "dataset_note": dataset_note}
+    data = {
+        **result,
+        "dataset_note": dataset_note,
+        "caliber_note": f"{dataset_note}；6 个维度的分项之和均等于该口径总收入，四套收入合计口径见页脚。",
+    }
     if dimension == "store_type":
         data["dimension_note"] = "该维度为在营门店类型（同店/新店/闭店）；门店档案的 MALL/社区街边/写字楼/交通枢纽 店型字段暂未作为结构维度。"
     return {
@@ -843,6 +865,7 @@ def revenue_same_store(session: Session, period: str, baseline: str = "yoy", bra
             for row in new
             if row["has_current"]
         ],
+        "caliber_note": "门店口径：同店 13 家 + 新店 2 家，收入合计 1000.23 / 759.95 万元；客流×客单拆解按逐店计算后汇总，0.12 万尾差来自源表取整。",
     }
     insights = insight_rules.finalize(
         insight_rules.same_store_insights(summary_out) + insight_rules.store_anomaly_insights(store_items),
@@ -968,6 +991,7 @@ def revenue_channel(session: Session, period: str, baseline: str = "yoy", brand:
                 "new_store": r2(new_display),
                 "diff": r2(row["diff"]),
                 "rate": r4(row["rate"]),
+                "same_rate": r4((same_display - row["base"]) / row["base"]) if row["base"] else None,
                 "share": r4(row["current"] / channel_total_current) if channel_total_current else None,
             }
         )
@@ -1067,6 +1091,7 @@ def revenue_channel_detail(session: Session, period: str, channel_id: int, basel
             else None
         ),
         "funnel_note": None if funnel_data else "示例数据只导入了美团大众（点评）漏斗；其他渠道漏斗待导入",
+        "note": None if funnel_data else "示例数据只导入了美团大众（点评）漏斗；其他渠道漏斗待导入",
     }
     return {
         "data": data,
@@ -1282,6 +1307,7 @@ def revenue_conclusion(session: Session, period: str, baseline: str = "yoy", bra
         "summary": summary,
         "conclusions": conclusions,
         "actions": ACTIONS,
+        "caliber_note": "异动汇总使用门店口径（1000.23 / 759.95 万元）；四项合计与收入变动的 0.13 万差异为源表取整尾差，页面不强行对齐。",
     }
     return {
         "data": data,

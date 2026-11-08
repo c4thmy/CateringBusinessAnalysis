@@ -1,4 +1,4 @@
-import { Button, Layout, Menu } from 'antd'
+import { Alert, Button, Layout, Menu } from 'antd'
 import type { MenuProps } from 'antd'
 import { useMemo, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -175,6 +175,15 @@ export function AppLayout() {
         </Layout.Header>
 
         <Layout.Content className="app-content">
+          {filters.mode === 'ytd' && location.pathname.startsWith('/revenue') ? (
+            <Alert
+              type="warning"
+              showIcon
+              style={{ marginBottom: 12 }}
+              title="收入分析累计口径二期开放"
+              description="当前收入页按当月展示；如需累计请先补齐月度门店/渠道数据，二期开放后再切换。"
+            />
+          ) : null}
           <Outlet />
         </Layout.Content>
       </Layout>

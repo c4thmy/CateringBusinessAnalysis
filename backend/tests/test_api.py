@@ -371,7 +371,7 @@ def test_data_status(auth: TestClient) -> None:
 def test_templates(auth: TestClient) -> None:
     templates = auth.get("/api/imports/templates")
     assert templates.status_code == 200
-    items = templates.json()
+    items = templates.json()["data"]
     assert len(items) == 8
     assert {item["key"] for item in items} == set(DATASETS)
     download = auth.get("/api/imports/templates/pl_monthly.xlsx")
@@ -402,7 +402,7 @@ def test_reimport_does_not_accumulate(auth: TestClient) -> None:
         files={"file": ("02_门店收入.csv", content, "text/csv")},
     )
     assert upload.status_code == 200, upload.text
-    batch = upload.json()
+    batch = upload.json()["data"]
     assert batch["status"] == "draft"
     assert batch["errors"] == []
     assert len(batch["coverage"]) >= 1
@@ -410,7 +410,7 @@ def test_reimport_does_not_accumulate(auth: TestClient) -> None:
 
     commit = auth.post(f"/api/imports/{batch['id']}/commit")
     assert commit.status_code == 200, commit.text
-    assert commit.json()["status"] == "committed"
+    assert commit.json()["data"]["status"] == "committed"
 
     session = SessionLocal()
     try:
@@ -471,7 +471,7 @@ def test_invalid_xlsx_returns_row_error_not_500(auth: TestClient) -> None:
         files={"file": ("bad.xlsx", b"this is not a zip", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")},
     )
     assert response.status_code == 200, response.text
-    body = response.json()
+    body = response.json()["data"]
     assert body["errors"], body
     assert "不是有效的 xlsx" in body["errors"][0]["message"]
 
@@ -492,3 +492,48 @@ def test_overview_percentile_keys_for_frontend(auth: TestClient) -> None:
     assert percentiles["gross_margin"] is None
     assert "percentile_hints" in percentiles
     assert percentiles["revenue"]["n"] == 13
+
+
+# ---------------------------------------------------------------------------
+# 维护修复：导入契约、编码、未知 API、渠道/口径字段
+# ---------------------------------------------------------------------------
+def test_templates_response_is_data_envelope(auth: TestClient) -> None:
+    body = auth.get("/api/imports/templates").json()
+    assert "data" in body and len(body["data"]) == 8
+    assert all("key" in item for item in body["data"])
+
+
+def test_unknown_api_returns_404_json(auth: TestClient) -> None:
+    response = auth.get("/api/not-exists")
+    assert response.status_code == 404
+    assert response.headers["content-type"].startswith("application/json")
+    assert "未知接口" in response.json()["detail"]
+
+
+def test_gbk_encoded_csv_is_accepted(auth: TestClient) -> None:
+    content = (
+        "期间,门店,营业收入,食材成本,优惠及手续费,水电气低值,宣传费用,工资奖金,宿舍房租,店铺房租,其它费用\n"
+        "2031-01,全部,1000,267,234.96,39.94,27.35,147.03,17.16,69.86,84\n"
+    ).encode("gbk")
+    response = auth.post(
+        "/api/imports",
+        data={"dataset": "pl_monthly"},
+        files={"file": ("gbk.csv", content, "text/csv")},
+    )
+    assert response.status_code == 200, response.text
+    batch = response.json()["data"]
+    assert batch["errors"] == []
+    assert batch["status"] == "draft"
+
+
+def test_revenue_notes_and_channel_same_rate(auth: TestClient) -> None:
+    channel = get_data(auth, "/api/analysis/revenue/channel")["data"]
+    assert channel["caliber_note"]
+    assert channel["rows"][0]["same_rate"] is not None
+
+    structure = get_data(auth, "/api/analysis/revenue/structure?dimension=channel")["data"]
+    assert structure["caliber_note"]
+    same = get_data(auth, "/api/analysis/revenue/same-store")["data"]
+    assert same["caliber_note"]
+    conclusion = get_data(auth, "/api/analysis/revenue/conclusion")["data"]
+    assert conclusion["caliber_note"]

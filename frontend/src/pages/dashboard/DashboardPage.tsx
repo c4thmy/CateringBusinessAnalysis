@@ -152,7 +152,7 @@ export function DashboardPage() {
         footer={
           <Footnote title="利润桥口径">
             基期营业利润 {formatWan(data.profit_bridge.start)} 万元 → 本期 {formatWan(data.profit_bridge.end)} 万元；
-            收入规模影响 =（本期收入 − 基期收入）× 基期边际贡献率 41.87%；变动成本按「费率差 × 本期收入」、固定费用按「基期 − 本期」计算；
+            收入规模影响 =（本期收入 − 基期收入）× 基期边际贡献率 {formatPercent(data.profit_bridge.base_marginal_contribution_rate ?? 0.4187)}；变动成本按「费率差 × 本期收入」、固定费用按「基期 − 本期」计算；
             9 项影响合计 {formatWan(data.profit_bridge.items.reduce((sum, item) => sum + item.impact, 0))} 万元。
           </Footnote>
         }

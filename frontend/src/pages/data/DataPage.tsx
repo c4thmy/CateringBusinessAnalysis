@@ -13,7 +13,7 @@ import {
   Upload,
 } from 'antd'
 import type { TableColumnsType } from 'antd'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   useBatches,
   useCommitImport,
@@ -24,6 +24,7 @@ import {
   useUploadImport,
 } from '../../api/hooks'
 import { errorMessage } from '../../api/errors'
+import { apiMode } from '../../api/client'
 import type { ImportBatch, ImportErrorRow, ImportPreviewRow } from '../../api/types'
 import { DataTable } from '../../components/DataTable'
 import { CaliberNote, Footnote } from '../../components/Notes'
@@ -79,7 +80,7 @@ const batchColumns: TableColumnsType<ImportBatch> = [
 export function DataPage() {
   const { filters } = useFilters()
   const { message } = AntApp.useApp()
-  const [dataset, setDataset] = useState('pl')
+  const [dataset, setDataset] = useState('')
   const [draft, setDraft] = useState<ImportBatch | null>(null)
 
   const templatesQuery = useTemplates()
@@ -92,6 +93,11 @@ export function DataPage() {
 
   const templates = templatesQuery.data?.data ?? []
   const currentTemplate = templates.find((item) => item.key === dataset)
+
+  // 数据集 key 以接口返回为准（real/mock 的 key 命名不同，不能写死）
+  useEffect(() => {
+    if (!dataset && templates.length > 0) setDataset(templates[0].key)
+  }, [dataset, templates])
   const batches = batchesQuery.data?.data ?? []
   const status = statusQuery.data?.data
   const datasets = status?.datasets ?? []
@@ -225,13 +231,34 @@ export function DataPage() {
                 placeholder="选择数据集"
               />
               <Button
-                onClick={() =>
-                  message.info(
-                    `模板下载将在后端联调后开放：GET /api/imports/templates/${dataset}.xlsx（表头与中文列名一致）`,
-                  )
-                }
+                disabled={!dataset}
+                onClick={() => {
+                  if (!dataset) return
+                  if (apiMode === 'mock') {
+                    message.info('mock 模式下不下载文件；切到 real 模式或直接用后端地址下载')
+                    return
+                  }
+                  void (async () => {
+                    try {
+                      const response = await fetch(`/api/imports/templates/${dataset}.xlsx`, {
+                        credentials: 'include',
+                      })
+                      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+                      const blob = await response.blob()
+                      const url = URL.createObjectURL(blob)
+                      const link = document.createElement('a')
+                      link.href = url
+                      link.download = `${currentTemplate?.name ?? dataset}.xlsx`
+                      link.click()
+                      URL.revokeObjectURL(url)
+                      message.success('模板已开始下载')
+                    } catch (error) {
+                      message.error(`模板下载失败：${errorMessage(error)}`)
+                    }
+                  })()
+                }}
               >
-                下载模板（占位）
+                下载模板
               </Button>
               {currentTemplate ? (
                 <span style={{ fontSize: 12, color: '#9CA3AF' }}>
@@ -241,7 +268,7 @@ export function DataPage() {
             </div>
 
             <Upload.Dragger
-              accept=".xlsx,.xls,.csv"
+              accept=".xlsx,.xlsm,.csv,.txt"
               showUploadList={false}
               beforeUpload={(file) => {
                 handleUpload(file as File)
@@ -252,7 +279,7 @@ export function DataPage() {
               <div className="upload-drop">
                 <span style={{ fontSize: 15, fontWeight: 600, color: '#1F2430' }}>点击或拖拽文件到此区域上传</span>
                 <span style={{ fontSize: 12, color: '#9CA3AF' }}>
-                  支持 .xlsx / .xls / .csv；上传后先校验并预览，确认后才写入数据库
+                  支持 .xlsx / .xlsm / .csv / .txt（旧 .xls 请另存为 .xlsx）；上传后先校验并预览，确认后才写入数据库
                 </span>
                 <span style={{ fontSize: 12, color: '#9CA3AF' }}>
                   演示提示：文件名包含「error」或「错误」时会模拟校验失败（错误表 → 确认按钮禁用）

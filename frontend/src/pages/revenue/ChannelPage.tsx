@@ -224,7 +224,7 @@ export function ChannelPage() {
           footer={
             <>
               <span>
-                同店合计 <b>857.03</b> 万元 · 新店分摊 <b>142.97</b> 万元
+                同店合计 <b>{formatWan(total.same_store ?? null)}</b> 万元 · 新店分摊 <b>{formatWan(total.new_store ?? null)}</b> 万元
               </span>
               <span style={{ color: '#9CA3AF' }}>同店 + 新店 = 渠道本期收入（分项取整尾差 ≤ 0.02）</span>
             </>

@@ -130,7 +130,7 @@ describe('页面冒烟：真实渲染 mock 数据', () => {
   it('数据导入：数据集、模板占位、批次列表；错误文件时确认按钮禁用', async () => {
     renderPage(<DataPage />)
     await expectText('加载示例数据')
-    await expectText('下载模板（占位）')
+    await expectText('下载模板')
     await expectText('上传与校验（两阶段提交）')
     await expectText('导入批次（支持回滚）')
     expect(screen.queryByText('确认入库')).not.toBeInTheDocument()

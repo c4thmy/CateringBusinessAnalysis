@@ -34,11 +34,11 @@
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | GET | `/data-status?period=2025-09&store=all` | 各模块所需数据集是否齐全 |
-| GET | `/imports/templates` | 8 类模板清单 `[{key,name,columns:[...]}]` |
+| GET | `/imports/templates` | 8 类模板清单，`{ "data": [{key,name,columns:[...]}] }` |
 | GET | `/imports/templates/{key}.xlsx` | 下载模板 |
-| POST | `/imports` | multipart：`dataset`、`file`；返回 `{id, status:"draft", errors:[{row,column,message}], preview:[...]}` |
-| POST | `/imports/{id}/commit` | 确认入库，返回 `{id, status:"committed", row_count}` |
-| POST | `/imports/{id}/rollback` | 回滚批次 |
+| POST | `/imports` | multipart：`dataset`、`file`；返回 `{ "data": {id, status:"draft", errors:[...], preview:[...]} }` |
+| POST | `/imports/{id}/commit` | 确认入库，返回 `{ "data": {id, status:"committed", row_count} }` |
+| POST | `/imports/{id}/rollback` | 回滚批次，返回 `{ "data": batch }` |
 | GET | `/imports?limit=20` | 批次列表 |
 | POST | `/seeds/load` | 加载示例数据（仅空库或强制覆盖） |
 

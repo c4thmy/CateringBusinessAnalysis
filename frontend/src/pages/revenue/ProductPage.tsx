@@ -206,14 +206,14 @@ export function ProductPage() {
   ]
   const topNegative = sortedSeries.filter((row) => row.diff < 0)
 
-  const setRows: SetCompareRow[] = [
+  const setRows: SetCompareRow[] = sets ? [
     { key: 'qty', name: '订单量（单）', base: sets.base.qty, current: sets.current.qty, diff: sets.current.qty - sets.base.qty, kind: 'count' },
     { key: 'amount', name: '销售额（元）', base: sets.base.amount, current: sets.current.amount, diff: sets.diff, kind: 'yuan' },
     { key: 'avg_price', name: '实收单价（元）', base: sets.base.avg_price, current: sets.current.avg_price, diff: sets.current.avg_price - sets.base.avg_price, kind: 'yuan' },
     { key: 'dish', name: '菜品收入（元）', base: sets.base.dish_revenue, current: sets.current.dish_revenue, diff: sets.current.dish_revenue - sets.base.dish_revenue, kind: 'yuan' },
     { key: 'discount', name: '菜品优惠（元）', base: sets.base.discount, current: sets.current.discount, diff: sets.current.discount - sets.base.discount, kind: 'yuan' },
     { key: 'discount_rate', name: '优惠率', base: sets.base.discount_rate, current: sets.current.discount_rate, diff: sets.current.discount_rate - sets.base.discount_rate, kind: 'pp' },
-  ]
+  ] : []
 
   return (
     <div className="page-stack">
@@ -318,31 +318,37 @@ export function ProductPage() {
         </Col>
 
         <Col xs={24} xl={13}>
-          <Card
-            title="套餐量价（套餐与单品分开统计）"
-            extra={<Tag color="blue">数据来源：Excel 表 4</Tag>}
-            styles={{ body: { padding: 0 } }}
-          >
-            <DataTable<SetCompareRow> columns={setColumns} rows={setRows} rowKey={(row) => row.key} />
-            <div style={{ padding: 16, borderTop: '1px solid #F0F2F7' }}>
-              <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: 8 }}>
-                <span>
-                  量差 <b style={{ color: color.positive }}>{formatSignedNumber(sets.qty_impact)}</b> 元
-                </span>
-                <span>
-                  价差 <b style={{ color: color.negative }}>{formatSignedNumber(sets.price_impact)}</b> 元
-                </span>
-                <span>
-                  合计 <b>{formatSignedNumber(sets.diff)}</b> 元
-                </span>
+          {sets ? (
+            <Card
+              title="套餐量价（套餐与单品分开统计）"
+              extra={<Tag color="blue">数据来源：Excel 表 4</Tag>}
+              styles={{ body: { padding: 0 } }}
+            >
+              <DataTable<SetCompareRow> columns={setColumns} rows={setRows} rowKey={(row) => row.key} />
+              <div style={{ padding: 16, borderTop: '1px solid #F0F2F7' }}>
+                <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: 8 }}>
+                  <span>
+                    量差 <b style={{ color: color.positive }}>{formatSignedNumber(sets.qty_impact)}</b> 元
+                  </span>
+                  <span>
+                    价差 <b style={{ color: color.negative }}>{formatSignedNumber(sets.price_impact)}</b> 元
+                  </span>
+                  <span>
+                    合计 <b>{formatSignedNumber(sets.diff)}</b> 元
+                  </span>
+                </div>
+                <CaliberNote title="口径说明">
+                  套餐量价按 销量 → 单价 连环替代：量差 =（本期订单 − 同期订单）× 同期单价；
+                  价差 =（本期实收单价 − 同期实收单价）× 本期订单。Excel 表 4 与 PPT p27 的套餐数据不同源，
+                  系统按 Excel 表 4 展示（PPT 数字只用于讲解）。套餐优惠率 = 菜品优惠 ÷ 销售额。
+                </CaliberNote>
               </div>
-              <CaliberNote title="口径说明">
-                套餐量价按 销量 → 单价 连环替代：量差 =（本期订单 − 同期订单）× 同期单价；
-                价差 =（本期实收单价 − 同期实收单价）× 本期订单。Excel 表 4 与 PPT p27 的套餐数据不同源，
-                系统按 Excel 表 4 展示（PPT 数字只用于讲解）。套餐优惠率 = 菜品优惠 ÷ 销售额。
-              </CaliberNote>
-            </div>
-          </Card>
+            </Card>
+          ) : (
+            <Card title="套餐量价（套餐与单品分开统计）" styles={{ body: { padding: 16 } }}>
+              <div style={{ color: '#6B7280' }}>本期没有套餐销售数据；导入「单品销售」中的套餐行后展示。</div>
+            </Card>
+          )}
         </Col>
       </Row>
 

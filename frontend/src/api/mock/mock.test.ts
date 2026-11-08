@@ -109,11 +109,13 @@ describe('mock 数据 = design.md 第 14 节验收数字', () => {
 
   it('套餐量价：432/66,080/152.96 → 5,472/444,217.54/81.18，量差 +770,933.33、价差 -392,795.79', async () => {
     const res = await mockRequest<ApiEnvelope<ProductData>>('/revenue/product?scope=same_store')
-    expect(res.data.sets.base).toMatchObject({ qty: 432, amount: 66080, avg_price: 152.96 })
-    expect(res.data.sets.current).toMatchObject({ qty: 5472, amount: 444217.54, avg_price: 81.18 })
-    expect(res.data.sets.qty_impact).toBe(770933.33)
-    expect(res.data.sets.price_impact).toBe(-392795.79)
-    expect(res.data.sets.diff).toBe(378137.54)
+    const sets = res.data.sets
+    if (!sets) throw new Error('mock 套餐数据不应为空')
+    expect(sets.base).toMatchObject({ qty: 432, amount: 66080, avg_price: 152.96 })
+    expect(sets.current).toMatchObject({ qty: 5472, amount: 444217.54, avg_price: 81.18 })
+    expect(sets.qty_impact).toBe(770933.33)
+    expect(sets.price_impact).toBe(-392795.79)
+    expect(sets.diff).toBe(378137.54)
     expect(res.data.total.qty_impact).toBe(91.5)
     expect(res.data.total.price_impact).toBe(5.67)
     expect(res.data.series.find((item) => item.name === '肉类')).toMatchObject({

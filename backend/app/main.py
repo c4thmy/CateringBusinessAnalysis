@@ -3,7 +3,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -36,6 +36,11 @@ app.include_router(protected_router, prefix="/api")
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.api_route("/api/{rest:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+def api_not_found(rest: str) -> None:
+    raise HTTPException(status_code=404, detail=f"未知接口：/api/{rest}")
 
 
 # 生产：前端构建产物由 FastAPI 托管；开发时用 vite dev server。

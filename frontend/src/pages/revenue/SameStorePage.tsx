@@ -221,7 +221,7 @@ export function SameStorePage() {
           footer={
             <>
               <span>
-                13 店合计 <b>{formatWan(summary.current)}</b> 万元
+                {data.stores.length} 店合计 <b>{formatWan(summary.current)}</b> 万元
               </span>
               <span style={{ color: '#6B7280' }}>
                 客流影响 {formatWan(summary.traffic_impact)} · 客单影响 {formatWan(summary.ticket_impact)}

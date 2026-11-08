@@ -229,7 +229,7 @@ export function StoreDetailPage() {
               <Alert
                 type="info"
                 showIcon
-                title="时段判断：工作日 9:00-14:00 与 14:00-24:00 为下降主因"
+                title={`时段判断：${data.daypart_highlight ? `${data.daypart_highlight.day_type} ${data.daypart_highlight.daypart}` : '时段数据不足'} 为下降主因`}
                 description={`工作日合计 ${formatInteger(workdayTotal?.diff ?? null)} 人次（${formatPercent(workdayTotal?.rate ?? null)}），其中午市 ${formatInteger(lunchWorkday?.diff ?? null)}、晚市 ${formatInteger(dinnerWorkday?.diff ?? null)}；节假日 ${formatInteger(holidayTotal?.diff ?? null)} 人次（${formatPercent(holidayTotal?.rate ?? null)}）无法对冲。橙色行为下降贡献最大的时段。`}
                 style={{ marginBottom: 12 }}
               />

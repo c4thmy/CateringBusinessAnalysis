@@ -51,7 +51,7 @@ def upload(client: TestClient, dataset: str, filename: str, content: bytes, mapp
         data["account_mapping"] = mapping
     response = client.post("/api/imports", data=data, files={"file": (filename, content, "text/csv")})
     assert response.status_code == 200, response.text
-    return response.json()
+    return response.json()["data"]
 
 
 PL_HEADER = ["期间", "门店", "营业收入", "食材成本", "优惠及手续费", "水电气低值", "宣传费用", "工资奖金", "宿舍房租", "店铺房租", "其它费用", "税金及附加"]
@@ -101,8 +101,8 @@ def test_stage_does_not_write_commit_does(auth: TestClient) -> None:
 
     commit = auth.post(f"/api/imports/{batch['id']}/commit")
     assert commit.status_code == 200
-    assert commit.json()["status"] == "committed"
-    assert commit.json()["row_count"] == 10  # 营业收入 + 9 个成本费用科目
+    assert commit.json()["data"]["status"] == "committed"
+    assert commit.json()["data"]["row_count"] == 10  # 营业收入 + 9 个成本费用科目
 
     session = SessionLocal()
     try:
@@ -113,7 +113,7 @@ def test_stage_does_not_write_commit_does(auth: TestClient) -> None:
 
     rollback = auth.post(f"/api/imports/{batch['id']}/rollback")
     assert rollback.status_code == 200
-    assert rollback.json()["status"] == "rolled_back"
+    assert rollback.json()["data"]["status"] == "rolled_back"
     session = SessionLocal()
     try:
         final = session.scalar(select(func.count(PLFact.id)).where(PLFact.period == "2030-01"))
@@ -279,7 +279,7 @@ def test_every_template_parses_cleanly(auth: TestClient) -> None:
             },
         )
         assert response.status_code == 200, response.text
-        body = response.json()
+        body = response.json()["data"]
         assert body["errors"] == [], f"{key} 模板示例行校验失败：{body['errors']}"
         assert len(body["preview"]) == 1
 
