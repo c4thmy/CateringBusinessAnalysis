@@ -118,7 +118,7 @@ def _preview(rows: list[dict], limit: int = 50) -> list[dict]:
     for row in rows[:limit]:
         item: dict = {"行号": row.get("_row")}
         for key, value in row.items():
-            if key == "_row":
+            if key == "_row" or key.startswith("_"):
                 continue
             item[key.split("::", 1)[1] if key.startswith("__account__::") else key] = value
         preview.append(item)

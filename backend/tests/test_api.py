@@ -537,3 +537,28 @@ def test_revenue_notes_and_channel_same_rate(auth: TestClient) -> None:
     assert same["caliber_note"]
     conclusion = get_data(auth, "/api/analysis/revenue/conclusion")["data"]
     assert conclusion["caliber_note"]
+
+
+def test_spa_path_traversal_is_blocked() -> None:
+    from app.config import settings
+    from app.main import _resolve_dist_file
+
+    if not settings.frontend_dist.exists():
+        pytest.skip("frontend/dist 未构建，跳过静态托管路径测试")
+    assert _resolve_dist_file("../../backend/app/config.py") is None
+    assert _resolve_dist_file("index.html") is not None
+
+
+def test_import_preview_hides_internal_keys(auth: TestClient) -> None:
+    content = (
+        "期间,门店,营业收入,食材成本,优惠及手续费,水电气低值,宣传费用,工资奖金,宿舍房租,店铺房租,其它费用\n"
+        "2033-01,全部,1000,267,234.96,39.94,27.35,147.03,17.16,69.86,84\n"
+    ).encode("utf-8")
+    response = auth.post(
+        "/api/imports",
+        data={"dataset": "pl_monthly"},
+        files={"file": ("preview.csv", content, "text/csv")},
+    )
+    assert response.status_code == 200, response.text
+    preview = response.json()["data"]["preview"]
+    assert preview and all(not key.startswith("_") for key in preview[0])

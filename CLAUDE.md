@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 一期代码已落地并通过自测（`backend/` + `frontend/`），目标 2026-11-15 演示。技术栈：
 
-- 后端：Python 3.12 + FastAPI + SQLAlchemy 2 + Alembic + SQLite + pandas/openpyxl + pytest
+- 后端：Python 3.12 + FastAPI + SQLAlchemy 2 + Alembic + SQLite + openpyxl + pytest
 - 前端：React 19 + TypeScript 7 + Vite 8 + Ant Design 6 + ECharts 6 + react-router 7 + @tanstack/react-query 5 + vitest 5（版本见 `frontend/package.json` 与 lock 文件）
 - 计算引擎：`backend/app/engine/` 纯函数，与页面解耦，用 `shared/fixtures/*.json` 做前后端回归
 - AI 洞察：按规则生成，暂不接大模型
@@ -26,7 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `docs/research/excel-model-extract.md`、`excel-sample-data.json`、`ppt-course-extract.md` — 源文件的完整提取与差异清单
 - `docs/domain/data-caliber-notes.md` — 口径差异与默认取数规则（**做数之前先读**）
 - `docs/architecture.md`、`docs/agents/roles.md`、`docs/sprint-7d.md` — 一人指挥多角色 Agent 的生产方式、角色写入范围、7 天冲刺
-- `docs/engineering/` — 软件工程过程文档集（需求分析 / 产品设计 / 概要设计 / 详细设计 / 测试文档 / 用户手册 / 维护与版本记录），维护与交接先读这里
+- `docs/engineering/` — 软件工程过程文档集 01–18（可行性 / 计划 / 需求 / 产品 / 概要 / 详细 / 数据库 / 接口 / 测试计划与报告 / 部署运维 / 用户手册 / 验收 / 评审配置 / 安全 / 开发规范 / 维护），维护与交接先读 `docs/engineering/README.md`
 
 ## 一期范围（2026-11-15 Demo）
 
@@ -48,7 +48,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # 后端（venv 已在 backend/.venv，Python 3.12）
 cd backend && .venv/bin/python -m uvicorn app.main:app --port 8000   # http://127.0.0.1:8000/docs
-cd backend && .venv/bin/python -m pytest                              # 57 passed
+cd backend && .venv/bin/python -m pytest                              # 63 passed
 cd backend && .venv/bin/python -m app.seeds.load_seed                 # 空库首次加载示例数据
 cd backend && rm -f data/cba.db && .venv/bin/python -m app.seeds.load_seed   # 重新灌数
 
@@ -59,7 +59,7 @@ cd frontend && VITE_API_MODE=real npm run dev -- --port 5173          # 真后�
 cd frontend && npm test && VITE_API_MODE=real npm run build          # 45 passed / 构建（real 模式供 FastAPI 托管）
 
 # 一键
-bash scripts/dev.sh      # 后端 8000 + 前端 5173（前端默认 mock；真后端请用上面的 VITE_API_MODE=real）
+bash scripts/dev.sh      # 后端 8000 + 前端 5173（默认 real，可用 VITE_API_MODE=mock 覆盖）
 bash scripts/smoke.sh    # pytest + 前端构建 + 空库灌数 + 登录 + 关键接口数字断言
 ```
 

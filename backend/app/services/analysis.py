@@ -102,7 +102,7 @@ def resolve_baseline_periods(baseline: str, period: str, mode: str) -> list[str]
 
 def baseline_label(baseline: str, periods: list[str]) -> str:
     if baseline == "budget":
-        return "budget"
+        return "预算"
     if len(periods) == 1:
         return periods[0]
     return f"{periods[0]}~{periods[-1]}"

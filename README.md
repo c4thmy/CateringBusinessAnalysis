@@ -6,7 +6,7 @@
 - 远程仓库（双远程）：
   - `origin`：https://github.com/cfmypian/CateringBusinessAnalysis-dshSA.git（历史与实验记录）
   - `target`：https://github.com/c4thmy/CateringBusinessAnalysis.git（演示与商用主仓库）
-- 技术栈：后端 Python（FastAPI + SQLAlchemy + SQLite + pandas/openpyxl + pytest）；前端 React 19 + TypeScript 7 + Vite 8 + Ant Design 6 + ECharts 6；AI 洞察按规则生成，暂不接大模型。
+- 技术栈：后端 Python（FastAPI + SQLAlchemy + SQLite + openpyxl + pytest）；前端 React 19 + TypeScript 7 + Vite 8 + Ant Design 6 + ECharts 6；AI 洞察按规则生成，暂不接大模型。
 - 需求与规格唯一真相：`openspec/changes/build-catering-analysis-platform/`（proposal → specs → design → tasks）。
 
 ## 当前状态
@@ -28,6 +28,7 @@ docs/                  业务与过程文档
   domain/              业务口径与数据差异（data-caliber-notes.md）
   research/            Excel / PPT 完整提取报告与样例数据
   demo/                演示脚本与截图（一期产出）
+  engineering/         软件工程文档集 01–18（需求/产品/概要/详细/数据库/接口/测试/部署/验收/安全/规范等）
 openspec/              规格驱动开发（proposal → specs → design → tasks → archive）
 backend/               一期新增：FastAPI 服务、引擎、导入器、测试、seed
 frontend/              一期新增：React 看板
@@ -42,6 +43,7 @@ scripts/               启动、加载示例数据、冒烟
 - PPT 课件提取：`docs/research/ppt-course-extract.md`
 - 方案与验收：`openspec/changes/build-catering-analysis-platform/{proposal,design,tasks}.md`
 - 开发流程：`docs/architecture.md`、`docs/agents/roles.md`、`docs/sprint-7d.md`
+- 软件工程文档集（维护/交接先读）：`docs/engineering/`（01 需求 → 02 产品 → 03 概要 → 04 详细 → 05/13/14 测试 → 06 用户 → 07 维护 → 08 可行性 → 09 计划 → 10 数据库 → 11 接口 → 12 部署 → 15 验收 → 16 评审配置 → 17 安全 → 18 开发规范）
 
 ## 快速开始（已实测）
 
@@ -56,12 +58,12 @@ VITE_API_MODE=real npm run dev -- --port 5173                          # 真后�
 # 演示账号 admin / admin123
 
 # 3) 测试与冒烟
-cd backend && .venv/bin/python -m pytest                               # 57 passed
+cd backend && .venv/bin/python -m pytest                               # 63 passed
 cd frontend && npm test && VITE_API_MODE=real npm run build           # 45 passed / 构建（real 模式用于 FastAPI 托管演示）
 bash scripts/smoke.sh                                                  # 一键：pytest + 构建 + 灌数 + 接口数字断言
 
 # 4) 一键起两个服务
-bash scripts/dev.sh
+bash scripts/dev.sh      # 后端 8000 + 前端 5173（默认 real）
 ```
 
 > 演示用 `VITE_API_MODE=real`；mock 模式内置同一套数字，断网也能讲。
@@ -116,6 +118,8 @@ git checkout v0.1.0         # 临时切回该状态查看，看完用 git checko
 - v0.3.0：一期 Demo 完成（2026-11-08）——收入分析全链路 + 数据导入 + 应用框架 + 6 模块骨架，57 pytest / 45 vitest / 冒烟通过
 - v0.3.1：一期演示收口（2026-11-08）——标签清单与实测命令修正，演示环境验证通过
 - v0.3.2：软件工程过程文档集发布（2026-11-08）——需求/产品/概要/详细/测试/用户/维护 7 份文档；系统代码与 v0.3.1 一致
+- v0.3.3：维护修复（2026-11-08）——导入接口 {data}、DataPage 默认 key、模板下载、GBK CSV、未知 API 404、渠道/口径字段、去演示硬编码、移除 pandas；63 pytest
+- v0.3.4：安全补丁 + 文档集 v2.0（2026-11-08）——SPA 路径穿越修复、预览内部键脱敏；01–18 全量软件工程文档
 
 
 ## openspec opt

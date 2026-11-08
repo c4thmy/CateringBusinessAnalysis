@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title=settings.app_name, version="0.3.0", lifespan=lifespan)
+app = FastAPI(title=settings.app_name, version="0.3.4", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,6 +43,17 @@ def api_not_found(rest: str) -> None:
     raise HTTPException(status_code=404, detail=f"未知接口：/api/{rest}")
 
 
+
+def _resolve_dist_file(full_path: str) -> Path | None:
+    root = settings.frontend_dist.resolve()
+    try:
+        target = (root / full_path).resolve()
+    except (OSError, ValueError):
+        return None
+    if not target.is_relative_to(root) or not target.is_file():
+        return None
+    return target
+
 # 生产：前端构建产物由 FastAPI 托管；开发时用 vite dev server。
 _dist = Path(settings.frontend_dist)
 if _dist.exists():
@@ -50,7 +61,8 @@ if _dist.exists():
 
     @app.get("/{full_path:path}")
     def spa(full_path: str) -> FileResponse:
-        target = _dist / full_path
-        if full_path and target.is_file():
+        # 防路径穿越：只允许 dist 目录内的真实文件，其余回到 index.html
+        target = _resolve_dist_file(full_path)
+        if target is not None:
             return FileResponse(target)
         return FileResponse(_dist / "index.html")

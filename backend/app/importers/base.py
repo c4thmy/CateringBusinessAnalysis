@@ -102,7 +102,7 @@ def _read_matrix(filename: str, content: bytes) -> list[list]:
             except UnicodeDecodeError as exc:
                 raise ValueError("CSV 编码不支持：请另存为 UTF-8 或 GBK 编码后重试") from exc
         return [row for row in csv.reader(io.StringIO(text))]
-    raise ValueError(f"不支持的文件类型：{suffix or '未知'}（仅支持 .xlsx / .csv）")
+    raise ValueError(f"不支持的文件类型：{suffix or '未知'}（仅支持 .xlsx / .xlsm / .csv / .txt）")
 
 
 def _to_float(value, column: Column) -> float | None:
